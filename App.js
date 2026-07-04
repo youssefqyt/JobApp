@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import SplashScreen from './front/SplashScreen';
+import Home from './front/Home';
 
 export default function App() {
   const [isSplashDone, setIsSplashDone] = useState(false);
@@ -17,8 +18,8 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" />
+      <Home />
     </View>
   );
 }
@@ -26,8 +27,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
   },
 });
