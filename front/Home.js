@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import JobCard from './component/CardJob';
 import BottomNavBar from './component/Navbar';
+import FilterModal from './component/FilterModal';
 
 // ---- Colors (Tailwind theme from the HTML) ----
 const COLORS = {
@@ -97,6 +98,8 @@ const JOBS = [
 ];
 
 export default function Home() {
+  const [showFilters, setShowFilters] = useState(false);
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -136,7 +139,11 @@ export default function Home() {
                 placeholderTextColor={COLORS.onSurfaceVariant}
               />
             </View>
-            <TouchableOpacity style={styles.filterButton} activeOpacity={0.7}>
+            <TouchableOpacity
+              style={styles.filterButton}
+              activeOpacity={0.7}
+              onPress={() => setShowFilters(true)}
+            >
               <FilterIcon />
               <Text style={styles.filterText}>Filtres</Text>
             </TouchableOpacity>
@@ -169,6 +176,17 @@ export default function Home() {
 
       {/* ======== BOTTOM NAV ======== */}
       <BottomNavBar initialTab="Accueil" />
+
+      {/* ======== FILTERS BOTTOM SHEET ======== */}
+      <FilterModal
+        visible={showFilters}
+        onClose={() => setShowFilters(false)}
+        onApply={(filters) => {
+          console.log('Selected filters:', filters);
+          // TODO: refetch/filter JOBS with the selected filters
+        }}
+        resultCount={47}
+      />
     </View>
   );
 }
