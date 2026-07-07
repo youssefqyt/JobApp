@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet } from 'react-native';
 import SplashScreen from './front/SplashScreen';
 import Onboarding from './front/Onboarding';
-import Home from './front/Home';
+import Home from './front/Candidat/Home';
 
 export default function App() {
   const [isSplashDone, setIsSplashDone] = useState(false);

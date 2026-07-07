@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import BottomNavBar from '../component/Navbar';
+import SettingsSheet from '../component/SettingsSheet';
 
 const COLORS = {
   primary: '#006c49',
@@ -65,12 +66,17 @@ function InfoRow({ icon, title, subtitle, meta }) {
 }
 
 export default function Profile({ onEditProfile, onViewCvPdf, onAddSkill }) {
+  const [showSettings, setShowSettings] = useState(false);
+
   return (
     <View style={styles.root}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Mon Profil</Text>
-        <TouchableOpacity style={styles.settingsButton}>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => setShowSettings(true)}
+        >
           <MaterialIcons name="settings" size={22} color={COLORS.onSurfaceVariant} />
         </TouchableOpacity>
       </View>
@@ -189,7 +195,21 @@ export default function Profile({ onEditProfile, onViewCvPdf, onAddSkill }) {
         </View>
       </ScrollView>
 
+      {/* Same shared bottom nav */}
       <BottomNavBar initialTab="Profil" />
+
+      {/* Settings bottom sheet, opened from the header settings icon */}
+      <SettingsSheet
+        visible={showSettings}
+        onClose={() => setShowSettings(false)}
+        onLanguagePress={() => {}}
+        onHelpPress={() => {}}
+        onContactPress={() => {}}
+        onPrivacyPolicyPress={() => {}}
+        onAboutPress={() => {}}
+        onSecurityPress={() => {}}
+        onLogout={() => {}}
+      />
     </View>
   );
 }
