@@ -269,6 +269,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: COLORS.onSurface,
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderWidth: 0,
+    borderColor: 'transparent',
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
   },
 
   // Category grid

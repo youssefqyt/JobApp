@@ -8,7 +8,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import BottomNavBarEntreprise from './componentEnt/NavbarEntreprise';
 
 // ---- Colors (from your Tailwind theme) ----
 const COLORS = {
@@ -194,6 +193,8 @@ export default function AIAssistant() {
           placeholder="Posez une question sur vos recrutements..."
           placeholderTextColor={COLORS.outline}
           multiline
+          underlineColorAndroid="transparent"
+          selectionColor={COLORS.primary}
         />
         <TouchableOpacity style={styles.micButton} activeOpacity={0.7}>
           <MaterialIcons name="mic" size={20} color={COLORS.onSurfaceVariant} />
@@ -202,9 +203,6 @@ export default function AIAssistant() {
           <MaterialIcons name="send" size={18} color={COLORS.white} />
         </TouchableOpacity>
       </View>
-
-      {/* Same Entreprise bottom nav (Offres tab instead of Formation) */}
-      <BottomNavBarEntreprise initialTab="IA" />
     </View>
   );
 }
@@ -411,6 +409,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 8,
     maxHeight: 100,
+    // These four properties remove the default black focus
+    // rectangle that browsers draw on <input>/<textarea> elements
+    // when running through React Native Web. They're simply ignored
+    // on native iOS/Android, so it's safe to keep them everywhere.
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
+    boxShadow: 'none',
   },
   micButton: {
     padding: 8,

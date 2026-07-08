@@ -29,7 +29,7 @@ const colors = {
   black: '#000000',
 };
 
-export default function SignUpScreen({ navigation }) {
+export default function SignUpScreen({ navigation, onSignUp, onSkip, onSignIn }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +42,11 @@ export default function SignUpScreen({ navigation }) {
     focusedField === field ? colors.primary : colors.outline;
 
   const handleSubmit = () => {
-    // TODO: wire up to your auth logic
+    if (onSignUp) {
+      onSignUp({ fullName, email, password, regNumber, verifiedBadge });
+      return;
+    }
+
     console.log({ fullName, email, password, regNumber, verifiedBadge });
   };
 
@@ -56,7 +60,16 @@ export default function SignUpScreen({ navigation }) {
           <Text style={styles.logoTun}>Tun</Text>
           <Text style={styles.logoWork}>Work</Text>
         </View>
-        <TouchableOpacity style={styles.skipRow}>
+        <TouchableOpacity
+          style={styles.skipRow}
+          onPress={() => {
+            if (onSkip) {
+              onSkip();
+            } else if (navigation?.goBack) {
+              navigation.goBack();
+            }
+          }}
+        >
           <Text style={styles.skipText}>Passer pour l'instant</Text>
           <MaterialIcons name="chevron-right" size={18} color={colors.onSurfaceVariant} />
         </TouchableOpacity>
@@ -245,7 +258,7 @@ export default function SignUpScreen({ navigation }) {
           <View style={styles.footerLinkWrapper}>
             <Text style={styles.footerLinkText}>
               Déjà un compte ?{' '}
-              <Text style={styles.footerLinkAction}>Se connecter</Text>
+              <Text style={styles.footerLinkAction} onPress={onSignIn}>Se connecter</Text>
             </Text>
           </View>
         </View>
@@ -354,6 +367,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: colors.onSurface,
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
+    boxShadow: 'none',
   },
   inputWithTrailingIcon: {
     paddingRight: 48,

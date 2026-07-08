@@ -147,7 +147,7 @@ const SkillBar = ({ label, percent, variant }) => {
 
 // ---- Main Screen ----
 
-export default function LearningHub() {
+export default function LearningHub({ activeTab, onTabChange }) {
   return (
     <View style={styles.container}>
       {/* ======== TOP APP BAR ======== */}
@@ -218,7 +218,7 @@ export default function LearningHub() {
       </ScrollView>
 
       {/* ======== BOTTOM NAV (same shared component) ======== */}
-      <BottomNavBar initialTab="Formation" />
+      <BottomNavBar initialTab={activeTab || 'Formation'} onTabChange={onTabChange} />
     </View>
   );
 }

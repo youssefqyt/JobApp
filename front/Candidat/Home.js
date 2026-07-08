@@ -97,7 +97,7 @@ const JOBS = [
   },
 ];
 
-export default function Home() {
+export default function Home({ activeTab, onTabChange }) {
   const [showFilters, setShowFilters] = useState(false);
 
   return (
@@ -137,6 +137,7 @@ export default function Home() {
                 style={styles.searchInput}
                 placeholder="Poste, entreprise, secteur..."
                 placeholderTextColor={COLORS.onSurfaceVariant}
+                underlineColorAndroid="transparent"
               />
             </View>
             <TouchableOpacity
@@ -175,7 +176,7 @@ export default function Home() {
       </ScrollView>
 
       {/* ======== BOTTOM NAV ======== */}
-      <BottomNavBar initialTab="Accueil" />
+      <BottomNavBar initialTab={activeTab || 'Accueil'} onTabChange={onTabChange} />
 
       {/* ======== FILTERS BOTTOM SHEET ======== */}
       <FilterModal
@@ -298,6 +299,12 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     fontSize: 14,
     color: COLORS.onSurface,
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderWidth: 0,
+    borderColor: 'transparent',
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
   },
   filterButton: {
     flexDirection: 'row',

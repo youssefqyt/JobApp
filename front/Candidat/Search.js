@@ -130,7 +130,7 @@ function MockInterviewItem({ icon, title, modules, minutes }) {
   );
 }
 
-export default function Search() {
+export default function Search({ activeTab, onTabChange }) {
   const [activeSpecialty, setActiveSpecialty] = useState('nursing');
   const [query, setQuery] = useState('');
 
@@ -156,6 +156,7 @@ export default function Search() {
             placeholderTextColor="rgba(60,74,66,0.5)"
             value={query}
             onChangeText={setQuery}
+            underlineColorAndroid="transparent"
           />
           <TouchableOpacity style={styles.tuneButton}>
             <MaterialIcons name="tune" size={18} color={COLORS.onSurfaceVariant} />
@@ -300,7 +301,7 @@ export default function Search() {
         </View>
       </ScrollView>
 
-      <BottomNavBar initialTab="Recherche" />
+      <BottomNavBar initialTab={activeTab || 'Recherche'} onTabChange={onTabChange} />
     </View>
   );
 }
@@ -343,6 +344,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: 15,
     color: COLORS.onSurface,
+    backgroundColor: COLORS.surface,
+    borderWidth: 0,
+    borderColor: 'transparent',
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
   },
   tuneButton: {
     padding: 8,

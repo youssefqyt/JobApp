@@ -275,6 +275,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 15,
     color: COLORS.onSurface,
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
+    boxShadow: 'none',
   },
   eyeButton: {
     paddingHorizontal: 12,

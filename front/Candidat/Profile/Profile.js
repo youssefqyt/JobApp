@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,11 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import BottomNavBar from '../component/Navbar';
 import SettingsSheet from '../component/SettingsSheet';
+import EditProfileScreen from './EditProfile';
+import LanguageScreen from './Settings/Language';
+import HelpCenter from './Settings/HelpCenter';
+import AboutScreen from './Settings/About';
+import PasswordScreen from './Settings/Password';
 
 const COLORS = {
   primary: '#006c49',
@@ -65,8 +70,47 @@ function InfoRow({ icon, title, subtitle, meta }) {
   );
 }
 
-export default function Profile({ onEditProfile, onViewCvPdf, onAddSkill }) {
+export default function Profile({
+  activeTab,
+  onTabChange,
+  onEditProfile,
+  onViewCvPdf,
+  onAddSkill,
+  initialSettingsPage = null,
+  onLogout,
+}) {
   const [showSettings, setShowSettings] = useState(false);
+  const [settingsPage, setSettingsPage] = useState(initialSettingsPage);
+
+  useEffect(() => {
+    setSettingsPage(initialSettingsPage);
+  }, [initialSettingsPage]);
+
+  const handleOpenSettingsPage = (page) => {
+    setSettingsPage(page);
+    setShowSettings(false);
+  };
+
+  const handleCloseSettingsPage = () => {
+    setSettingsPage(null);
+  };
+
+  if (settingsPage) {
+    switch (settingsPage) {
+      case 'language':
+        return <LanguageScreen navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'help':
+        return <HelpCenter navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'about':
+        return <AboutScreen navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'security':
+        return <PasswordScreen navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'editProfile':
+        return <EditProfileScreen navigation={{ goBack: handleCloseSettingsPage }} />;
+      default:
+        return null;
+    }
+  }
 
   return (
     <View style={styles.root}>
@@ -98,7 +142,10 @@ export default function Profile({ onEditProfile, onViewCvPdf, onAddSkill }) {
                 <MaterialIcons name="location-on" size={14} color={COLORS.outline} />
                 <Text style={styles.locationText}>{PROFILE.location}</Text>
               </View>
-              <TouchableOpacity style={styles.editButton} onPress={onEditProfile}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => handleOpenSettingsPage('editProfile')}
+              >
                 <MaterialIcons name="edit" size={16} color={COLORS.primary} />
                 <Text style={styles.editButtonText}>Modifier le profil</Text>
               </TouchableOpacity>
@@ -196,19 +243,30 @@ export default function Profile({ onEditProfile, onViewCvPdf, onAddSkill }) {
       </ScrollView>
 
       {/* Same shared bottom nav */}
-      <BottomNavBar initialTab="Profil" />
+      <BottomNavBar initialTab={activeTab || 'Profil'} onTabChange={onTabChange} />
 
       {/* Settings bottom sheet, opened from the header settings icon */}
       <SettingsSheet
         visible={showSettings}
         onClose={() => setShowSettings(false)}
-        onLanguagePress={() => {}}
-        onHelpPress={() => {}}
-        onContactPress={() => {}}
-        onPrivacyPolicyPress={() => {}}
-        onAboutPress={() => {}}
-        onSecurityPress={() => {}}
-        onLogout={() => {}}
+        onLanguagePress={() => handleOpenSettingsPage('language')}
+        onHelpPress={() => handleOpenSettingsPage('help')}
+        onContactPress={() => {
+          // TODO: implement contact destination or support chat
+          handleOpenSettingsPage('help');
+        }}
+        onPrivacyPolicyPress={() => {
+          // For now, reuse About screen or add a dedicated privacy route later
+          handleOpenSettingsPage('about');
+        }}
+        onAboutPress={() => handleOpenSettingsPage('about')}
+        onSecurityPress={() => handleOpenSettingsPage('security')}
+        onLogout={() => {
+          setShowSettings(false);
+          if (onLogout) {
+            onLogout();
+          }
+        }}
       />
     </View>
   );

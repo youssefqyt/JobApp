@@ -113,7 +113,7 @@ function QuickReplyChip({ label, onPress }) {
   );
 }
 
-export default function IA() {
+export default function IA({ activeTab, onTabChange }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [showQuickReply, setShowQuickReply] = useState(true);
   const [input, setInput] = useState('');
@@ -216,6 +216,7 @@ export default function IA() {
           onChangeText={setInput}
           onSubmitEditing={handleSend}
           returnKeyType="send"
+          underlineColorAndroid="transparent"
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
           <MaterialIcons name="send" size={20} color={COLORS.onPrimary} />
@@ -223,7 +224,7 @@ export default function IA() {
       </View>
 
       {/* Bottom nav */}
-      <BottomNavBar initialTab="IA" />
+      <BottomNavBar initialTab={activeTab || 'IA'} onTabChange={onTabChange} />
     </KeyboardAvoidingView>
   );
 }
@@ -381,6 +382,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: COLORS.onSurface,
     paddingVertical: 8,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    borderColor: 'transparent',
+    outlineStyle: 'none',
+    outlineWidth: 0,
+    outlineColor: 'transparent',
   },
   sendButton: {
     width: 40,

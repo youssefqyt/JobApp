@@ -72,7 +72,7 @@ function IdentityCard({ iconName, title, description, badgeIcon, badgeLabel, cta
 }
 
 // onSelect: (userType: 'candidate' | 'company') => void
-export default function Onboarding({ onSelect }) {
+export default function Onboarding({ onSelect, onLoginPress }) {
   return (
     <View style={styles.root}>
       {/* Header */}
@@ -82,7 +82,7 @@ export default function Onboarding({ onSelect }) {
           <Text style={{ color: COLORS.primary }}>Work</Text>
         </Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onLoginPress}>
             <Text style={styles.headerLink}>Connexion</Text>
           </TouchableOpacity>
           <Text style={styles.headerDivider}>|</Text>
@@ -91,7 +91,6 @@ export default function Onboarding({ onSelect }) {
           </TouchableOpacity>
         </View>
       </View>
-
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

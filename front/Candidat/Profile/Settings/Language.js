@@ -9,12 +9,7 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-
-// If you use expo, you can swap MaterialIcons for @expo/vector-icons.
-// npm install react-native-vector-icons  (or use expo's built-in set)
-import Icon from 'react-native-vector-icons/MaterialSymbolsOutlined';
-// Fallback: if MaterialSymbolsOutlined isn't available in your icon set,
-// use 'MaterialIcons' and swap names: 'arrow_back' -> 'arrow-back', etc.
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 
 const COLORS = {
   primary: '#006c49',
