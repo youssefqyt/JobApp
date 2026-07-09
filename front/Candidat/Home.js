@@ -4,29 +4,13 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import JobCard from './component/CardJob';
 import BottomNavBar from './component/Navbar';
 import FilterModal from './component/FilterModal';
-
-// ---- Colors (Tailwind theme from the HTML) ----
-const COLORS = {
-  primary: '#006c49',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainer: '#edeeef',
-  surfaceContainerHighest: '#e1e3e4',
-  outlineVariant: '#bbcabf',
-  error: '#ba1a1a',
-  surface: '#f8f9fa',
-  background: '#f8f9fa',
-  onPrimaryFixed: '#002113',
-  onPrimaryFixedVariant: '#005236',
-  primaryFixedDim: '#4edea3',
-};
+import { useCandidateTheme } from '../context/CandidateThemeContext';
 
 // ---- Icons ----
+// Icon colors are passed in as props so they can react to theme changes.
 
-const BellIcon = () => (
-  <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={COLORS.onSurfaceVariant}>
+const BellIcon = ({ color }) => (
+  <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path
       d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
       strokeLinecap="round"
@@ -36,7 +20,7 @@ const BellIcon = () => (
   </Svg>
 );
 
-const SearchIcon = ({ color = COLORS.onSurfaceVariant, size = 20 }) => (
+const SearchIcon = ({ color, size = 20 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path
       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
@@ -47,8 +31,8 @@ const SearchIcon = ({ color = COLORS.onSurfaceVariant, size = 20 }) => (
   </Svg>
 );
 
-const FilterIcon = () => (
-  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={COLORS.primary}>
+const FilterIcon = ({ color }) => (
+  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path
       d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
       strokeLinecap="round"
@@ -98,6 +82,8 @@ const JOBS = [
 ];
 
 export default function Home({ activeTab, onTabChange }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
   const [showFilters, setShowFilters] = useState(false);
 
   return (
@@ -120,7 +106,7 @@ export default function Home({ activeTab, onTabChange }) {
             {/* Right icons */}
             <View style={styles.headerRight}>
               <View style={styles.bellWrapper}>
-                <BellIcon />
+                <BellIcon color={colors.onSurfaceVariant} />
                 <View style={styles.bellDot} />
               </View>
               <View style={styles.avatar}>
@@ -132,11 +118,11 @@ export default function Home({ activeTab, onTabChange }) {
           {/* ======== SEARCH BAR ======== */}
           <View style={styles.searchRow}>
             <View style={styles.searchInputWrapper}>
-              <SearchIcon color={COLORS.onSurfaceVariant} size={20} />
+              <SearchIcon color={colors.onSurfaceVariant} size={20} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Poste, entreprise, secteur..."
-                placeholderTextColor={COLORS.onSurfaceVariant}
+                placeholderTextColor={colors.onSurfaceVariant}
                 underlineColorAndroid="transparent"
               />
             </View>
@@ -145,7 +131,7 @@ export default function Home({ activeTab, onTabChange }) {
               activeOpacity={0.7}
               onPress={() => setShowFilters(true)}
             >
-              <FilterIcon />
+              <FilterIcon color={colors.primary} />
               <Text style={styles.filterText}>Filtres</Text>
             </TouchableOpacity>
           </View>
@@ -192,10 +178,10 @@ export default function Home({ activeTab, onTabChange }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -209,7 +195,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -222,13 +208,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoTun: {
-    color: '#000000',
+    color: colors.onSurface,
     fontWeight: '700',
     fontSize: 22,
     letterSpacing: -0.5,
   },
   logoWork: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '700',
     fontSize: 22,
     letterSpacing: -0.5,
@@ -241,7 +227,7 @@ const styles = StyleSheet.create({
   bellWrapper: {
     width: 40,
     height: 40,
-    backgroundColor: COLORS.surfaceContainerHighest,
+    backgroundColor: colors.surfaceContainerHighest,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -253,21 +239,21 @@ const styles = StyleSheet.create({
     right: 10,
     width: 8,
     height: 8,
-    backgroundColor: COLORS.error,
+    backgroundColor: colors.error,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: COLORS.surface,
+    borderColor: colors.background,
   },
   avatar: {
     width: 40,
     height: 40,
-    backgroundColor: COLORS.primaryFixedDim,
+    backgroundColor: colors.primaryContainer,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
-    color: COLORS.onPrimaryFixed,
+    color: colors.primary,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -282,7 +268,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderRadius: 12,
     paddingLeft: 12,
     paddingRight: 12,
@@ -298,8 +284,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingLeft: 10,
     fontSize: 14,
-    color: COLORS.onSurface,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    color: colors.onSurface,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 0,
     borderColor: 'transparent',
     outlineStyle: 'none',
@@ -310,7 +296,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderRadius: 12,
@@ -322,7 +308,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   filterText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -340,12 +326,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   sectionTitle: {
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     fontWeight: '700',
     fontSize: 18,
   },
   voirTout: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },

@@ -2,52 +2,35 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import BottomNavBar from './component/Navbar';
-
-// ---- Colors (Tailwind theme from the Learning Hub HTML) ----
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surface: '#f8f9fa',
-  surfaceContainer: '#edeeef',
-  surfaceContainerLow: '#f3f4f5',
-  outlineVariant: '#bbcabf',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-  tertiary: '#a43a3a',
-  tertiaryContainer: '#fc7c78',
-  white: '#ffffff',
-  yellow: '#eab308',
-};
+import { useCandidateTheme } from '../context/CandidateThemeContext'; // adjust relative path
 
 // ---- Icons ----
 
-const SchoolIcon = ({ color = COLORS.primary, size = 22 }) => (
+const SchoolIcon = ({ color, size = 22 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <Path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 13.5L4.5 12.6V16c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3v-3.4L12 16.5z" />
   </Svg>
 );
 
-const PsychologyIcon = ({ color = COLORS.primary, size = 20 }) => (
+const PsychologyIcon = ({ color, size = 20 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <Path d="M12 2a7 7 0 00-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 00-7-7zm-1 19h2a1 1 0 001-1v-1h-4v1a1 1 0 001 1z" />
   </Svg>
 );
 
-const PlayIcon = ({ color = COLORS.white, size = 18 }) => (
+const PlayIcon = ({ color, size = 18 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <Path d="M8 5v14l11-7z" />
   </Svg>
 );
 
-const StarIcon = ({ color = COLORS.yellow, size = 14 }) => (
+const StarIcon = ({ color, size = 14 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z" />
   </Svg>
 );
 
-const ArrowIcon = ({ color = COLORS.primary, size = 16 }) => (
+const ArrowIcon = ({ color, size = 16 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path d="M5 12h14m-6-6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
   </Svg>
@@ -62,7 +45,6 @@ const COURSES = [
     rating: '4.8',
     duration: '14h',
     students: '18k inscrits',
-    thumbColor: '#0b2a3d',
   },
   {
     title: 'AWS Solutions Architect',
@@ -70,7 +52,6 @@ const COURSES = [
     rating: '4.9',
     duration: '20h',
     students: '42k inscrits',
-    thumbColor: '#f3f4f5',
   },
   {
     title: 'CI/CD avec GitHub Actions',
@@ -78,7 +59,6 @@ const COURSES = [
     rating: '4.7',
     duration: '8h',
     students: '5k inscrits',
-    thumbColor: '#1c1c1c',
   },
 ];
 
@@ -95,59 +75,62 @@ const MISSING_SKILLS = [
   { label: 'AWS / Cloud', percent: 20 },
 ];
 
-// ---- Sub-components ----
-
-const CourseCard = ({ course }) => (
-  <TouchableOpacity style={styles.courseCard} activeOpacity={0.8}>
-    <View style={styles.courseTopRow}>
-      <View style={[styles.courseThumb, { backgroundColor: COLORS.surfaceContainerLow }]} />
-      <View style={styles.courseInfo}>
-        <Text style={styles.courseTitle} numberOfLines={2}>{course.title}</Text>
-        <Text style={styles.courseProvider}>{course.provider}</Text>
-      </View>
-      <TouchableOpacity style={styles.playButton} activeOpacity={0.7}>
-        <PlayIcon />
-      </TouchableOpacity>
-    </View>
-    <View style={styles.courseMetaRow}>
-      <View style={styles.courseRatingRow}>
-        <StarIcon />
-        <Text style={styles.courseRatingText}>{course.rating}</Text>
-      </View>
-      <Text style={styles.courseMetaText}>{course.duration}</Text>
-      <Text style={styles.courseMetaText}>{course.students}</Text>
-    </View>
-  </TouchableOpacity>
-);
-
-const SkillBar = ({ label, percent, variant }) => {
-  const isGap = variant === 'gap';
-  return (
-    <View style={styles.skillBarWrapper}>
-      <View style={styles.skillBarLabelRow}>
-        <Text style={styles.skillBarLabel}>{label}</Text>
-        <Text style={[styles.skillBarValue, { color: isGap ? COLORS.tertiary : COLORS.primary }]}>
-          {isGap ? `Lacune - ${percent}%` : `${percent}%`}
-        </Text>
-      </View>
-      <View style={styles.skillBarTrack}>
-        <View
-          style={[
-            styles.skillBarFill,
-            {
-              width: `${percent}%`,
-              backgroundColor: isGap ? COLORS.tertiaryContainer : COLORS.primaryContainer,
-            },
-          ]}
-        />
-      </View>
-    </View>
-  );
-};
-
 // ---- Main Screen ----
 
 export default function LearningHub({ activeTab, onTabChange }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
+  // ---- Sub-components (defined inside so they can use `colors`/`styles`) ----
+
+  const CourseCard = ({ course }) => (
+    <TouchableOpacity style={styles.courseCard} activeOpacity={0.8}>
+      <View style={styles.courseTopRow}>
+        <View style={styles.courseThumb} />
+        <View style={styles.courseInfo}>
+          <Text style={styles.courseTitle} numberOfLines={2}>{course.title}</Text>
+          <Text style={styles.courseProvider}>{course.provider}</Text>
+        </View>
+        <TouchableOpacity style={styles.playButton} activeOpacity={0.7}>
+          <PlayIcon color={colors.white} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.courseMetaRow}>
+        <View style={styles.courseRatingRow}>
+          <StarIcon color={colors.yellow} />
+          <Text style={styles.courseRatingText}>{course.rating}</Text>
+        </View>
+        <Text style={styles.courseMetaText}>{course.duration}</Text>
+        <Text style={styles.courseMetaText}>{course.students}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const SkillBar = ({ label, percent, variant }) => {
+    const isGap = variant === 'gap';
+    return (
+      <View style={styles.skillBarWrapper}>
+        <View style={styles.skillBarLabelRow}>
+          <Text style={styles.skillBarLabel}>{label}</Text>
+          <Text style={[styles.skillBarValue, { color: isGap ? colors.tertiary : colors.primary }]}>
+            {isGap ? `Lacune - ${percent}%` : `${percent}%`}
+          </Text>
+        </View>
+        <View style={styles.skillBarTrack}>
+          <View
+            style={[
+              styles.skillBarFill,
+              {
+                width: `${percent}%`,
+                backgroundColor: isGap ? colors.tertiaryContainer : colors.primaryContainer,
+              },
+            ]}
+          />
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* ======== TOP APP BAR ======== */}
@@ -166,7 +149,7 @@ export default function LearningHub({ activeTab, onTabChange }) {
         {/* ======== RECOMMENDED COURSES ======== */}
         <View style={styles.sectionHeader}>
           <View style={styles.sectionHeaderLeft}>
-            <SchoolIcon />
+            <SchoolIcon color={colors.primary} />
             <Text style={styles.sectionTitle}>Formations recommandées</Text>
           </View>
           <TouchableOpacity activeOpacity={0.7}>
@@ -183,7 +166,7 @@ export default function LearningHub({ activeTab, onTabChange }) {
           <View style={styles.analyzerHeader}>
             <View style={styles.analyzerHeaderLeft}>
               <View style={styles.analyzerIconWrapper}>
-                <PsychologyIcon />
+                <PsychologyIcon color={colors.primary} />
               </View>
               <Text style={styles.sectionTitle}>Skill Gap Analyzer</Text>
             </View>
@@ -211,7 +194,7 @@ export default function LearningHub({ activeTab, onTabChange }) {
             <Text style={styles.analyzerFooterText}>3 compétences manquantes identifiées</Text>
             <TouchableOpacity style={styles.planLink} activeOpacity={0.7}>
               <Text style={styles.planLinkText}>Plan de formation</Text>
-              <ArrowIcon />
+              <ArrowIcon color={colors.primary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -223,24 +206,24 @@ export default function LearningHub({ activeTab, onTabChange }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   topBar: {
     height: 64,
     paddingTop: 12,
     paddingHorizontal: 24,
     justifyContent: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
+    borderBottomColor: colors.outlineVariant,
   },
   topBarTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
     letterSpacing: -0.3,
   },
   scrollView: {
@@ -255,7 +238,7 @@ const styles = StyleSheet.create({
   // ---- Header ----
   subtitle: {
     fontSize: 16,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 20,
   },
 
@@ -274,20 +257,20 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     letterSpacing: -0.2,
   },
   voirTout: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },
 
   // ---- Course cards ----
   courseCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -302,6 +285,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 10,
+    backgroundColor: colors.surfaceContainerLow,
   },
   courseInfo: {
     flex: 1,
@@ -309,19 +293,19 @@ const styles = StyleSheet.create({
   courseTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     lineHeight: 18,
   },
   courseProvider: {
     fontSize: 12,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   playButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -338,18 +322,18 @@ const styles = StyleSheet.create({
   courseRatingText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   courseMetaText: {
     fontSize: 12,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
 
   // ---- Skill Gap Analyzer ----
   analyzerCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 20,
     marginTop: 4,
@@ -372,7 +356,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'rgba(0,108,73,0.1)',
+    backgroundColor: colors.surfaceVariant,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -380,7 +364,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 999,
@@ -389,12 +373,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   targetPillText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   skillsColumn: {
     marginBottom: 20,
@@ -402,7 +386,7 @@ const styles = StyleSheet.create({
   columnLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 14,
@@ -418,7 +402,7 @@ const styles = StyleSheet.create({
   skillBarLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   skillBarValue: {
     fontSize: 14,
@@ -426,7 +410,7 @@ const styles = StyleSheet.create({
   },
   skillBarTrack: {
     height: 8,
-    backgroundColor: COLORS.surfaceContainer,
+    backgroundColor: colors.surfaceContainer,
     borderRadius: 999,
     overflow: 'hidden',
   },
@@ -436,7 +420,7 @@ const styles = StyleSheet.create({
   },
   analyzerFooter: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.outlineVariant,
+    borderTopColor: colors.outlineVariant,
     paddingTop: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -447,7 +431,7 @@ const styles = StyleSheet.create({
   analyzerFooterText: {
     fontSize: 14,
     fontStyle: 'italic',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   planLink: {
     flexDirection: 'row',
@@ -455,7 +439,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   planLinkText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },

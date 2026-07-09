@@ -11,23 +11,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import BottomNavBar from './component/Navbar';
-
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onPrimary: '#ffffff',
-  onPrimaryContainer: '#00422b',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerHighest: '#e1e3e4',
-  surfaceContainer: '#edeeef',
-  surfaceContainerLowest: '#ffffff',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-  secondary: '#2b6954',
-  outlineVariant: '#bbcabf',
-  background: '#f8f9fa',
-};
+import { useCandidateTheme } from '../context/CandidateThemeContext';
 
 // ---- Static conversation seed, matching the mockup ----
 const INITIAL_MESSAGES = [
@@ -60,7 +44,7 @@ const INITIAL_MESSAGES = [
   },
 ];
 
-function BotTextBubble({ text, time }) {
+function BotTextBubble({ text, time, styles }) {
   return (
     <View style={styles.botMessageWrap}>
       <View style={styles.botBubble}>
@@ -71,7 +55,7 @@ function BotTextBubble({ text, time }) {
   );
 }
 
-function UserBubble({ text, time }) {
+function UserBubble({ text, time, styles }) {
   return (
     <View style={styles.userMessageWrap}>
       <View style={styles.userBubble}>
@@ -82,19 +66,19 @@ function UserBubble({ text, time }) {
   );
 }
 
-function BotChecklistBubble({ intro, items, ctaLabel, time, onCtaPress }) {
+function BotChecklistBubble({ intro, items, ctaLabel, time, onCtaPress, styles, colors }) {
   return (
     <View style={styles.botMessageWrap}>
       <View style={styles.botBubble}>
         <Text style={[styles.bodyText, styles.checklistIntro]}>{intro}</Text>
         {items.map((item, i) => (
           <View key={i} style={styles.checklistItem}>
-            <MaterialIcons name="check-circle" size={18} color={COLORS.primary} />
+            <MaterialIcons name="check-circle" size={18} color={colors.primary} />
             <Text style={styles.checklistText}>{item}</Text>
           </View>
         ))}
         <TouchableOpacity style={styles.ctaButton} onPress={onCtaPress}>
-          <MaterialIcons name="auto-awesome" size={18} color={COLORS.onPrimary} />
+          <MaterialIcons name="auto-awesome" size={18} color={colors.white} />
           <Text style={styles.ctaButtonText}>{ctaLabel}</Text>
         </TouchableOpacity>
       </View>
@@ -103,7 +87,7 @@ function BotChecklistBubble({ intro, items, ctaLabel, time, onCtaPress }) {
   );
 }
 
-function QuickReplyChip({ label, onPress }) {
+function QuickReplyChip({ label, onPress, styles }) {
   return (
     <View style={styles.quickReplyRow}>
       <TouchableOpacity style={styles.quickReplyChip} onPress={onPress}>
@@ -114,6 +98,9 @@ function QuickReplyChip({ label, onPress }) {
 }
 
 export default function IA({ activeTab, onTabChange }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [showQuickReply, setShowQuickReply] = useState(true);
   const [input, setInput] = useState('');
@@ -185,13 +172,15 @@ export default function IA({ activeTab, onTabChange }) {
                 ctaLabel={msg.ctaLabel}
                 time={msg.time}
                 onCtaPress={handleGenerateCv}
+                styles={styles}
+                colors={colors}
               />
             );
           }
           return msg.from === 'bot' ? (
-            <BotTextBubble key={msg.id} text={msg.text} time={msg.time} />
+            <BotTextBubble key={msg.id} text={msg.text} time={msg.time} styles={styles} />
           ) : (
-            <UserBubble key={msg.id} text={msg.text} time={msg.time} />
+            <UserBubble key={msg.id} text={msg.text} time={msg.time} styles={styles} />
           );
         })}
 
@@ -199,6 +188,7 @@ export default function IA({ activeTab, onTabChange }) {
           <QuickReplyChip
             label="Oui, génère une version améliorée"
             onPress={handleQuickReply}
+            styles={styles}
           />
         )}
       </ScrollView>
@@ -206,12 +196,12 @@ export default function IA({ activeTab, onTabChange }) {
       {/* Input dock */}
       <View style={styles.inputDock}>
         <TouchableOpacity style={styles.micButton}>
-          <MaterialIcons name="mic" size={22} color={COLORS.onSurfaceVariant} />
+          <MaterialIcons name="mic" size={22} color={colors.onSurfaceVariant} />
         </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Posez votre question..."
-          placeholderTextColor={COLORS.onSurfaceVariant}
+          placeholderTextColor={colors.onSurfaceVariant}
           value={input}
           onChangeText={setInput}
           onSubmitEditing={handleSend}
@@ -219,7 +209,7 @@ export default function IA({ activeTab, onTabChange }) {
           underlineColorAndroid="transparent"
         />
         <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          <MaterialIcons name="send" size={20} color={COLORS.onPrimary} />
+          <MaterialIcons name="send" size={20} color={colors.white} />
         </TouchableOpacity>
       </View>
 
@@ -229,22 +219,22 @@ export default function IA({ activeTab, onTabChange }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     height: 56,
     justifyContent: 'center',
     paddingHorizontal: 16,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '600',
     letterSpacing: -0.2,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   chat: {
     flex: 1,
@@ -262,9 +252,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   botBubble: {
-    backgroundColor: COLORS.surfaceContainerHighest,
+    backgroundColor: colors.surfaceContainerHighest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     padding: 16,
     borderTopLeftRadius: 4,
     borderTopRightRadius: 16,
@@ -274,11 +264,11 @@ const styles = StyleSheet.create({
   bodyText: {
     fontSize: 15,
     lineHeight: 22,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   timeTextLeft: {
     fontSize: 11,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 4,
     marginLeft: 4,
   },
@@ -290,7 +280,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   userBubble: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     padding: 16,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -300,11 +290,11 @@ const styles = StyleSheet.create({
   userBodyText: {
     fontSize: 15,
     lineHeight: 22,
-    color: COLORS.onPrimary,
+    color: colors.white,
   },
   timeTextRight: {
     fontSize: 11,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 4,
     marginRight: 4,
   },
@@ -321,20 +311,20 @@ const styles = StyleSheet.create({
   },
   checklistText: {
     fontSize: 15,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
     height: 48,
     borderRadius: 12,
     marginTop: 4,
   },
   ctaButtonText: {
-    color: COLORS.onPrimary,
+    color: colors.white,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -344,15 +334,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   quickReplyChip: {
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.primaryContainer,
     borderWidth: 1,
-    borderColor: COLORS.secondary,
+    borderColor: colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 999,
   },
   quickReplyText: {
-    color: COLORS.onSecondaryContainer,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -365,9 +355,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 8,
     padding: 6,
-    backgroundColor: COLORS.surfaceContainer,
+    backgroundColor: colors.surfaceContainer,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 18,
   },
   micButton: {
@@ -380,7 +370,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     paddingVertical: 8,
     backgroundColor: 'transparent',
     borderWidth: 0,
@@ -393,7 +383,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

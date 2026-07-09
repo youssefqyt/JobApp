@@ -9,22 +9,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import BottomNavBar from './component/Navbar';
-
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onPrimary: '#ffffff',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surface: '#f8f9fa',
-  surfaceBright: '#f8f9fa',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerHigh: '#e7e8e9',
-  outlineVariant: '#bbcabf',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-};
+import { useCandidateTheme } from '../context/CandidateThemeContext'; // adjust relative path
 
 // ---- Static data (matches the HTML) ----
 const SPECIALTIES = [
@@ -79,60 +64,62 @@ const SAVED_JOB = {
   postedAt: 'Il y a 2 jours',
 };
 
-function SpecialtyRow({ label, icon, active, onPress }) {
-  return (
-    <TouchableOpacity
-      style={[styles.specialtyRow, active && styles.specialtyRowActive]}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      <View style={styles.specialtyLeft}>
-        <View style={[styles.specialtyIconWrap, active && styles.specialtyIconWrapActive]}>
-          <MaterialIcons
-            name={icon}
-            size={20}
-            color={active ? COLORS.onPrimary : COLORS.primary}
-          />
-        </View>
-        <Text style={[styles.specialtyLabel, active && styles.specialtyLabelActive]}>
-          {label}
-        </Text>
-      </View>
-      <MaterialIcons
-        name="chevron-right"
-        size={18}
-        color={active ? COLORS.primary : 'rgba(60,74,66,0.4)'}
-      />
-    </TouchableOpacity>
-  );
-}
-
-function MockInterviewItem({ icon, title, modules, minutes }) {
-  return (
-    <TouchableOpacity style={styles.mockItem} activeOpacity={0.8}>
-      <View style={styles.mockLeft}>
-        <View style={styles.mockIconWrap}>
-          <MaterialIcons name={icon} size={22} color={COLORS.primary} />
-        </View>
-        <View style={styles.mockTextWrap}>
-          <Text style={styles.mockTitle}>{title}</Text>
-          <View style={styles.mockMetaRow}>
-            <MaterialIcons name="view-module" size={13} color="rgba(60,74,66,0.7)" />
-            <Text style={styles.mockMetaText}>{modules} modules</Text>
-            <View style={styles.dotSeparator} />
-            <MaterialIcons name="schedule" size={13} color="rgba(60,74,66,0.7)" />
-            <Text style={styles.mockMetaText}>{minutes} min</Text>
-          </View>
-        </View>
-      </View>
-      <MaterialIcons name="chevron-right" size={20} color={COLORS.onSurfaceVariant} />
-    </TouchableOpacity>
-  );
-}
-
 export default function Search({ activeTab, onTabChange }) {
   const [activeSpecialty, setActiveSpecialty] = useState('nursing');
   const [query, setQuery] = useState('');
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
+  function SpecialtyRow({ label, icon, active, onPress }) {
+    return (
+      <TouchableOpacity
+        style={[styles.specialtyRow, active && styles.specialtyRowActive]}
+        onPress={onPress}
+        activeOpacity={0.8}
+      >
+        <View style={styles.specialtyLeft}>
+          <View style={[styles.specialtyIconWrap, active && styles.specialtyIconWrapActive]}>
+            <MaterialIcons
+              name={icon}
+              size={20}
+              color={active ? colors.onPrimary : colors.primary}
+            />
+          </View>
+          <Text style={[styles.specialtyLabel, active && styles.specialtyLabelActive]}>
+            {label}
+          </Text>
+        </View>
+        <MaterialIcons
+          name="chevron-right"
+          size={18}
+          color={active ? colors.primary : colors.textDisabled}
+        />
+      </TouchableOpacity>
+    );
+  }
+
+  function MockInterviewItem({ icon, title, modules, minutes }) {
+    return (
+      <TouchableOpacity style={styles.mockItem} activeOpacity={0.8}>
+        <View style={styles.mockLeft}>
+          <View style={styles.mockIconWrap}>
+            <MaterialIcons name={icon} size={22} color={colors.primary} />
+          </View>
+          <View style={styles.mockTextWrap}>
+            <Text style={styles.mockTitle}>{title}</Text>
+            <View style={styles.mockMetaRow}>
+              <MaterialIcons name="view-module" size={13} color={colors.textMuted} />
+              <Text style={styles.mockMetaText}>{modules} modules</Text>
+              <View style={styles.dotSeparator} />
+              <MaterialIcons name="schedule" size={13} color={colors.textMuted} />
+              <Text style={styles.mockMetaText}>{minutes} min</Text>
+            </View>
+          </View>
+        </View>
+        <MaterialIcons name="chevron-right" size={20} color={colors.onSurfaceVariant} />
+      </TouchableOpacity>
+    );
+  }
 
   return (
     <View style={styles.root}>
@@ -147,19 +134,19 @@ export default function Search({ activeTab, onTabChange }) {
           <MaterialIcons
             name="search"
             size={20}
-            color="rgba(60,74,66,0.7)"
+            color={colors.textMuted}
             style={styles.searchIcon}
           />
           <TextInput
             style={styles.searchInput}
             placeholder="Poste, entreprise ou mot-clé..."
-            placeholderTextColor="rgba(60,74,66,0.5)"
+            placeholderTextColor={colors.textFaint}
             value={query}
             onChangeText={setQuery}
             underlineColorAndroid="transparent"
           />
           <TouchableOpacity style={styles.tuneButton}>
-            <MaterialIcons name="tune" size={18} color={COLORS.onSurfaceVariant} />
+            <MaterialIcons name="tune" size={18} color={colors.onSurfaceVariant} />
           </TouchableOpacity>
         </View>
 
@@ -187,7 +174,7 @@ export default function Search({ activeTab, onTabChange }) {
           <View style={styles.prepHeader}>
             <View style={styles.prepHeaderLeft}>
               <View style={styles.prepIconWrap}>
-                <MaterialIcons name="psychology" size={22} color={COLORS.onPrimary} />
+                <MaterialIcons name="psychology" size={22} color={colors.onPrimary} />
               </View>
               <View>
                 <Text style={styles.prepTitle}>Préparation & Simulation</Text>
@@ -197,7 +184,7 @@ export default function Search({ activeTab, onTabChange }) {
             <MaterialIcons
               name="auto-awesome"
               size={32}
-              color="rgba(255,255,255,0.2)"
+              color={colors.overlayOnPrimarySoft}
             />
           </View>
 
@@ -220,7 +207,7 @@ export default function Search({ activeTab, onTabChange }) {
             <View style={styles.panelBadge}>
               <Text style={styles.panelBadgeText}>ENTREPRISES</Text>
             </View>
-            <MaterialIcons name="bar-chart" size={20} color="rgba(0,108,73,0.4)" />
+            <MaterialIcons name="bar-chart" size={20} color={colors.primaryTintStrong} />
           </View>
 
           <Text style={styles.subLabel}>TOP ENTREPRISES</Text>
@@ -247,13 +234,13 @@ export default function Search({ activeTab, onTabChange }) {
                   <View style={styles.reviewTopRow}>
                     <Text style={styles.reviewName}>{r.name}</Text>
                     <View style={styles.ratingRow}>
-                      <MaterialIcons name="star" size={13} color={COLORS.primary} />
+                      <MaterialIcons name="star" size={13} color={colors.primary} />
                       <Text style={styles.ratingText}>{r.rating}</Text>
                     </View>
                   </View>
                   <Text style={styles.reviewDesc}>{r.desc}</Text>
                 </View>
-                <MaterialIcons name="more-vert" size={18} color="rgba(60,74,66,0.4)" />
+                <MaterialIcons name="more-vert" size={18} color={colors.textDisabled} />
               </View>
             ))}
           </View>
@@ -269,7 +256,7 @@ export default function Search({ activeTab, onTabChange }) {
             <View style={styles.panelBadge}>
               <Text style={styles.panelBadgeText}>OFFRES ENREGISTRÉES</Text>
             </View>
-            <MaterialIcons name="bookmark" size={20} color="rgba(0,108,73,0.4)" />
+            <MaterialIcons name="bookmark" size={20} color={colors.primaryTintStrong} />
           </View>
 
           <View style={styles.savedJobCard}>
@@ -285,7 +272,7 @@ export default function Search({ activeTab, onTabChange }) {
                   </Text>
                 </View>
               </View>
-              <MaterialIcons name="bookmark" size={20} color={COLORS.primary} />
+              <MaterialIcons name="bookmark" size={20} color={colors.primary} />
             </View>
             <View style={styles.savedJobBottomRow}>
               <View style={styles.contractBadge}>
@@ -306,10 +293,10 @@ export default function Search({ activeTab, onTabChange }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -319,7 +306,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 24,
   },
 
@@ -327,7 +314,7 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderRadius: 16,
     paddingHorizontal: 14,
     marginBottom: 28,
@@ -343,8 +330,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     fontSize: 15,
-    color: COLORS.onSurface,
-    backgroundColor: COLORS.surface,
+    color: colors.onSurface,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 0,
     borderColor: 'transparent',
     outlineStyle: 'none',
@@ -365,12 +352,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   seeAllLink: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     textDecorationLine: 'underline',
   },
 
@@ -385,13 +372,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 12,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.4)',
+    borderColor: colors.borderFaint,
   },
   specialtyRowActive: {
-    backgroundColor: 'rgba(173,237,211,0.2)',
-    borderColor: 'rgba(0,108,73,0.4)',
+    backgroundColor: colors.secondaryContainerFaint,
+    borderColor: colors.primaryTintStrong,
   },
   specialtyLeft: {
     flexDirection: 'row',
@@ -402,20 +389,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    backgroundColor: colors.surfaceContainerHigh,
     alignItems: 'center',
     justifyContent: 'center',
   },
   specialtyIconWrapActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   specialtyLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   specialtyLabelActive: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '700',
   },
 
@@ -424,7 +411,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.6)',
+    borderColor: colors.borderSubtle,
     marginBottom: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -432,7 +419,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
   },
   prepHeader: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -448,22 +435,22 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: colors.overlayOnPrimarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   prepTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: COLORS.onPrimary,
+    color: colors.onPrimary,
   },
   prepSubtitle: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
+    color: colors.overlayOnPrimaryStrong,
     marginTop: 2,
   },
   prepBody: {
-    backgroundColor: COLORS.surfaceBright,
+    backgroundColor: colors.surfaceContainerLowest,
     padding: 20,
   },
   prepBodyHeaderRow: {
@@ -476,11 +463,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     textTransform: 'uppercase',
   },
   newBadge: {
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
@@ -488,7 +475,7 @@ const styles = StyleSheet.create({
   newBadgeText: {
     fontSize: 9,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
     textTransform: 'uppercase',
   },
   mockItem: {
@@ -497,9 +484,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.5)',
+    borderColor: colors.borderSubtle,
     marginBottom: 12,
   },
   mockLeft: {
@@ -512,7 +499,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    backgroundColor: colors.surfaceContainerHigh,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -522,7 +509,7 @@ const styles = StyleSheet.create({
   mockTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   mockMetaRow: {
     flexDirection: 'row',
@@ -532,21 +519,21 @@ const styles = StyleSheet.create({
   },
   mockMetaText: {
     fontSize: 11,
-    color: 'rgba(60,74,66,0.7)',
+    color: colors.textMuted,
   },
   dotSeparator: {
     width: 3,
     height: 3,
     borderRadius: 2,
-    backgroundColor: COLORS.outlineVariant,
+    backgroundColor: colors.outlineVariant,
     marginHorizontal: 2,
   },
 
   // Generic panel card (Entreprises / Offres)
   panelCard: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.6)',
+    borderColor: colors.borderSubtle,
     borderRadius: 24,
     padding: 20,
     shadowColor: '#000',
@@ -561,7 +548,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   panelBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 18,
     paddingVertical: 9,
     borderRadius: 12,
@@ -569,14 +556,14 @@ const styles = StyleSheet.create({
   panelBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.onPrimary,
+    color: colors.onPrimary,
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   subLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: 'rgba(60,74,66,0.7)',
+    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 10,
@@ -588,9 +575,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(243,244,245,0.5)',
+    backgroundColor: colors.surfaceFaintMedium,
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.2)',
+    borderColor: colors.borderFainter,
     borderRadius: 12,
     paddingVertical: 6,
     paddingHorizontal: 8,
@@ -600,18 +587,18 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 8,
-    backgroundColor: 'rgba(0,108,73,0.1)',
+    backgroundColor: colors.primaryTintFaint,
     alignItems: 'center',
     justifyContent: 'center',
   },
   companyChipIconText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   companyChipLabel: {
     fontSize: 12,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   reviewCard: {
     flexDirection: 'row',
@@ -620,9 +607,9 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 12,
     borderRadius: 16,
-    backgroundColor: 'rgba(243,244,245,0.2)',
+    backgroundColor: colors.surfaceFaint,
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.2)',
+    borderColor: colors.borderFainter,
   },
   reviewTextWrap: {
     flex: 1,
@@ -636,7 +623,7 @@ const styles = StyleSheet.create({
   reviewName: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   ratingRow: {
     flexDirection: 'row',
@@ -646,33 +633,33 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   reviewDesc: {
     fontSize: 13,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   seeMoreButton: {
     marginTop: 16,
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(0,108,73,0.2)',
+    borderColor: colors.primaryTintMedium,
     alignItems: 'center',
   },
   seeMoreText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 
   // Saved job
   savedJobCard: {
     padding: 14,
     borderRadius: 16,
-    backgroundColor: 'rgba(243,244,245,0.2)',
+    backgroundColor: colors.surfaceFaint,
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.2)',
+    borderColor: colors.borderFainter,
   },
   savedJobTopRow: {
     flexDirection: 'row',
@@ -688,23 +675,23 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: 'rgba(0,108,73,0.1)',
+    backgroundColor: colors.primaryTintFaint,
     alignItems: 'center',
     justifyContent: 'center',
   },
   savedJobIconText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   savedJobTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   savedJobMeta: {
     fontSize: 12,
-    color: 'rgba(60,74,66,0.7)',
+    color: colors.textMuted,
     marginTop: 2,
   },
   savedJobBottomRow: {
@@ -714,7 +701,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   contractBadge: {
-    backgroundColor: 'rgba(173,237,211,0.2)',
+    backgroundColor: colors.secondaryContainerFaint,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -722,12 +709,12 @@ const styles = StyleSheet.create({
   contractBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
     textTransform: 'uppercase',
   },
   savedJobDate: {
     fontSize: 12,
-    color: 'rgba(60,74,66,0.7)',
+    color: colors.textMuted,
     marginLeft: 'auto',
   },
 });

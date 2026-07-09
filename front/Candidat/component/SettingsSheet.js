@@ -10,35 +10,20 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  outline: '#6c7a71',
-  outlineVariant: '#bbcabf',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainer: '#edeeef',
-  surfaceContainerHighest: '#e1e3e4',
-  surfaceContainerLowest: '#ffffff',
-  surfaceVariant: '#e1e3e4',
-  error: '#ba1a1a',
-  errorContainer: '#ffdad6',
-  onError: '#ffffff',
-  white: '#ffffff',
-};
+import { useCandidateTheme } from '../../context/CandidateThemeContext';
 
 // ---- Reusable row ----
 
 function SettingsRow({ icon, iconRenderer, title, subtitle, right, onPress }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
   const Wrapper = onPress ? TouchableOpacity : View;
   return (
     <Wrapper style={styles.row} activeOpacity={0.7} onPress={onPress}>
       <View style={styles.rowLeft}>
         <View style={styles.rowIconWrap}>
           {iconRenderer ? iconRenderer() : (
-            <MaterialIcons name={icon} size={20} color={COLORS.primary} />
+            <MaterialIcons name={icon} size={20} color={colors.primary} />
           )}
         </View>
         <View style={styles.rowTextWrap}>
@@ -52,10 +37,13 @@ function SettingsRow({ icon, iconRenderer, title, subtitle, right, onPress }) {
 }
 
 function ChevronRight() {
-  return <MaterialIcons name="chevron-right" size={22} color={COLORS.outline} />;
+  const { colors } = useCandidateTheme();
+  return <MaterialIcons name="chevron-right" size={22} color={colors.outline} />;
 }
 
 function SectionLabel({ children }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
   return <Text style={styles.sectionLabel}>{children}</Text>;
 }
 
@@ -74,7 +62,8 @@ export default function SettingsSheet({
   appVersion = '1.0.0',
   language = 'Français',
 }) {
-  const [darkMode, setDarkMode] = useState(false);
+  const { colors, darkMode, toggleTheme } = useCandidateTheme();
+  const styles = getStyles(colors);
   const [pushNotifications, setPushNotifications] = useState(true);
 
   return (
@@ -97,7 +86,7 @@ export default function SettingsSheet({
             <View style={styles.sheetHeaderRow}>
               <Text style={styles.sheetTitle}>Paramètres</Text>
               <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.7}>
-                <MaterialIcons name="close" size={20} color={COLORS.onSurfaceVariant} />
+                <MaterialIcons name="close" size={20} color={colors.onSurfaceVariant} />
               </TouchableOpacity>
             </View>
           </View>
@@ -117,9 +106,12 @@ export default function SettingsSheet({
                 right={
                   <Switch
                     value={darkMode}
-                    onValueChange={setDarkMode}
-                    trackColor={{ false: COLORS.surfaceContainerHighest, true: COLORS.primaryContainer }}
-                    thumbColor={COLORS.white}
+                    onValueChange={toggleTheme}
+                    trackColor={{
+                      false: colors.surfaceContainerHighest,
+                      true: colors.primaryContainer,
+                    }}
+                    thumbColor={colors.white}
                   />
                 }
               />
@@ -136,8 +128,8 @@ export default function SettingsSheet({
                   <Switch
                     value={pushNotifications}
                     onValueChange={setPushNotifications}
-                    trackColor={{ false: COLORS.surfaceContainerHighest, true: COLORS.primaryContainer }}
-                    thumbColor={COLORS.white}
+                    trackColor={{ false: colors.surfaceContainerHighest, true: colors.primaryContainer }}
+                    thumbColor={colors.white}
                   />
                 }
               />
@@ -210,7 +202,7 @@ export default function SettingsSheet({
             {/* Logout */}
             <TouchableOpacity style={styles.logoutButton} activeOpacity={0.7} onPress={onLogout}>
               <View style={styles.logoutIconWrap}>
-                <MaterialIcons name="logout" size={20} color={COLORS.error} />
+                <MaterialIcons name="logout" size={20} color={colors.error} />
               </View>
               <Text style={styles.logoutText}>Déconnexion</Text>
             </TouchableOpacity>
@@ -221,7 +213,7 @@ export default function SettingsSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   overlayContainer: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -232,7 +224,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   sheet: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     maxHeight: '85%',
@@ -247,7 +239,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 999,
-    backgroundColor: COLORS.outlineVariant,
+    backgroundColor: colors.outlineVariant,
     opacity: 0.5,
     alignSelf: 'center',
     marginBottom: 16,
@@ -260,13 +252,13 @@ const styles = StyleSheet.create({
   sheetTitle: {
     fontSize: 24,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   closeButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -283,7 +275,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: COLORS.outline,
+    color: colors.outline,
     letterSpacing: 1.5,
     marginBottom: 12,
   },
@@ -295,10 +287,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
   },
   rowLeft: {
     flexDirection: 'row',
@@ -311,7 +303,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: COLORS.surfaceVariant,
+    backgroundColor: colors.surfaceVariant,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -321,17 +313,17 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   rowSubtitle: {
     fontSize: 12,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   langBadge: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   langRight: {
     flexDirection: 'row',
@@ -340,7 +332,7 @@ const styles = StyleSheet.create({
   },
   langRightText: {
     fontSize: 12,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   logoutButton: {
     flexDirection: 'row',
@@ -354,13 +346,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: COLORS.errorContainer,
+    backgroundColor: colors.errorContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoutText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.error,
+    color: colors.error,
   },
 });

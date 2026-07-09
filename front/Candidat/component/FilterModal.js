@@ -9,18 +9,7 @@ import {
   Pressable,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainer: '#edeeef',
-  outlineVariant: '#bbcabf',
-  star: '#eab308',
-};
+import { useCandidateTheme } from '../../context/CandidateThemeContext';
 
 const GOUVERNORATS = [
   'Tunis', 'Ariana', 'Ben Arous', 'Manouba', 'Nabeul',
@@ -42,7 +31,8 @@ const EXPERIENCE_LEVELS = [
 const SECTORS = ['IT & Tech', 'Finance', 'Marketing', 'Santé', 'Education', 'Design'];
 const RATINGS = ['4', '3', '2', 'Tous'];
 
-function Chip({ label, active, onPress, style }) {
+function Chip({ label, active, onPress, style, colors }) {
+  const styles = getStyles(colors);
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -58,6 +48,9 @@ function Chip({ label, active, onPress, style }) {
 // onApply: (filters) => void  — called with the selected filter state when "Voir X offres" is pressed
 // resultCount: number — shown on the apply button
 export default function FilterModal({ visible, onClose, onApply, resultCount = 47 }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const [gouvernorat, setGouvernorat] = useState('Tunis');
   const [contract, setContract] = useState('CDD');
   const [workModes, setWorkModes] = useState(['remote', 'hybrid', 'verified']);
@@ -104,7 +97,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Filtres</Text>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <MaterialIcons name="close" size={20} color={COLORS.onSurface} />
+              <MaterialIcons name="close" size={20} color={colors.onSurface} />
             </TouchableOpacity>
           </View>
 
@@ -122,6 +115,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
                   label={g}
                   active={gouvernorat === g}
                   onPress={() => setGouvernorat(g)}
+                  colors={colors}
                 />
               ))}
             </View>
@@ -138,6 +132,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
                   active={contract === c}
                   onPress={() => setContract(c)}
                   style={styles.chipSquare}
+                  colors={colors}
                 />
               ))}
             </View>
@@ -168,7 +163,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
                     </Text>
                     <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
                       {checked && (
-                        <MaterialIcons name="check" size={14} color="#fff" />
+                        <MaterialIcons name="check" size={14} color={colors.white} />
                       )}
                     </View>
                   </TouchableOpacity>
@@ -189,7 +184,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
                     style={[styles.expCard, active && styles.expCardActive]}
                     onPress={() => setExperience(level.key)}
                   >
-                    <MaterialIcons name={level.icon} size={20} color={COLORS.primary} />
+                    <MaterialIcons name={level.icon} size={20} color={colors.primary} />
                     <Text style={styles.expLabel}>{level.label}</Text>
                   </TouchableOpacity>
                 );
@@ -207,6 +202,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
                   label={s}
                   active={sector === s}
                   onPress={() => setSector(s)}
+                  colors={colors}
                 />
               ))}
             </View>
@@ -229,7 +225,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
                     ) : (
                       <>
                         <Text style={styles.ratingText}>{r}</Text>
-                        <MaterialIcons name="star" size={14} color={COLORS.star} />
+                        <MaterialIcons name="star" size={14} color={colors.star} />
                         <Text style={styles.ratingText}>+</Text>
                       </>
                     )}
@@ -254,7 +250,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -262,7 +258,7 @@ const styles = StyleSheet.create({
   },
   sheet: {
     maxHeight: '92%',
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     overflow: 'hidden',
@@ -276,7 +272,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 5,
     borderRadius: 3,
-    backgroundColor: COLORS.outlineVariant,
+    backgroundColor: colors.outlineVariant,
   },
   header: {
     flexDirection: 'row',
@@ -285,18 +281,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.surfaceContainer,
+    borderBottomColor: colors.surfaceContainer,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   closeButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.surfaceContainer,
+    backgroundColor: colors.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -313,7 +309,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 1,
     textTransform: 'uppercase',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 12,
   },
   sectionSpacing: {
@@ -328,9 +324,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
   },
   chipSquare: {
     borderRadius: 12,
@@ -338,16 +334,16 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
   },
   chipActive: {
-    backgroundColor: COLORS.primaryContainer,
-    borderColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
+    borderColor: colors.primaryContainer,
   },
   chipText: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   chipTextActive: {
-    color: '#ffffff',
+    color: colors.white,
   },
   grid2: {
     flexDirection: 'row',
@@ -361,34 +357,34 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
   },
   checkRowHighlight: {
-    backgroundColor: 'rgba(16,185,129,0.08)',
-    borderColor: 'rgba(16,185,129,0.3)',
+    backgroundColor: colors.primaryContainer + '14', // ~8% opacity overlay
+    borderColor: colors.primaryContainer,
   },
   checkLabel: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   checkLabelHighlight: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   checkbox: {
     width: 20,
     height: 20,
     borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   expCard: {
     width: '47%',
@@ -398,18 +394,18 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
   },
   expCardActive: {
-    backgroundColor: 'rgba(0,108,73,0.05)',
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary + '0D', // ~5% opacity overlay
+    borderColor: colors.primary,
   },
   expLabel: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   ratingRow: {
     flexDirection: 'row',
@@ -423,18 +419,18 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
   },
   ratingChipActive: {
-    backgroundColor: 'rgba(0,108,73,0.05)',
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary + '0D',
+    borderColor: colors.primary,
   },
   ratingText: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   footer: {
     flexDirection: 'row',
@@ -442,32 +438,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 20,
     borderTopWidth: 1,
-    borderTopColor: COLORS.surfaceContainer,
+    borderTopColor: colors.surfaceContainer,
   },
   resetButton: {
     flex: 1,
     height: 56,
     borderRadius: 16,
-    backgroundColor: COLORS.surfaceContainer,
+    backgroundColor: colors.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
   resetButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   applyButton: {
     flex: 2,
     height: 56,
     borderRadius: 16,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
   applyButtonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.white,
   },
 });

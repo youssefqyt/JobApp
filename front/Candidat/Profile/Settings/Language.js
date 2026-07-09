@@ -70,8 +70,9 @@ export default function LanguageScreen({ navigation }) {
             style={styles.iconButton}
             onPress={() => navigation?.goBack?.()}
             activeOpacity={0.7}
+            accessibilityLabel="Retour"
           >
-            <Icon name="arrow_back" size={24} color={COLORS.onSurface} />
+            <Icon name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Langue</Text>
         </View>
@@ -166,6 +167,8 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 8,
     borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 24,

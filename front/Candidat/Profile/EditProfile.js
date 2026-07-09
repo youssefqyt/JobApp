@@ -11,10 +11,13 @@ import {
   SafeAreaView,
   StatusBar,
   Platform,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-// If you're not using Expo: `npm install react-native-vector-icons`
-// and import MaterialIcons from 'react-native-vector-icons/MaterialIcons' instead.
+import * as DocumentPicker from 'expo-document-picker';
+// If you're not using Expo:
+// `npm install react-native-vector-icons react-native-document-picker`
+// and swap the imports above accordingly.
 
 // ---- Theme (from your design tokens) ----
 const colors = {
@@ -33,9 +36,18 @@ const colors = {
   surfaceContainerLowest: '#ffffff',
   surfaceContainerHigh: '#e7e8e9',
   surfaceContainerHighest: '#e1e3e4',
+  error: '#ba1a1a',
 };
 
 const JOB_TYPES = ['Plein-temps', 'Freelance', 'Remote', 'CDD / Projet'];
+const MAX_CV_SIZE = 5 * 1024 * 1024; // 5MB
+
+function formatBytes(bytes) {
+  if (!bytes && bytes !== 0) return '';
+  if (bytes < 1024) return `${bytes} o`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+}
 
 export default function EditProfileScreen({ navigation }) {
   const [fullName, setFullName] = useState('Ahmed Mansour');
@@ -50,6 +62,11 @@ export default function EditProfileScreen({ navigation }) {
   const [selectedJobTypes, setSelectedJobTypes] = useState(['Plein-temps', 'Remote']);
   const [skills, setSkills] = useState(['Figma', 'UX Research', 'Prototypage']);
   const [newSkill, setNewSkill] = useState('');
+
+  // CV upload state
+  const [cvFile, setCvFile] = useState(null);
+  const [cvError, setCvError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const toggleJobType = (type) => {
     setSelectedJobTypes((prev) =>
@@ -67,6 +84,52 @@ export default function EditProfileScreen({ navigation }) {
       setSkills((prev) => [...prev, trimmed]);
     }
     setNewSkill('');
+  };
+
+  const handlePickCV = async () => {
+    setCvError('');
+    try {
+      setUploading(true);
+      const result = await DocumentPicker.getDocumentAsync({
+        type: [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ],
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+
+      // Newer expo-document-picker returns { canceled, assets: [...] }
+      if (result.canceled) {
+        setUploading(false);
+        return;
+      }
+      const file = result.assets ? result.assets[0] : result;
+
+      if (file.size && file.size > MAX_CV_SIZE) {
+        setCvError('Le fichier dépasse la taille maximale de 5MB.');
+        setUploading(false);
+        return;
+      }
+
+      setCvFile({
+        name: file.name,
+        size: file.size,
+        uri: file.uri,
+        mimeType: file.mimeType,
+      });
+    } catch (err) {
+      console.warn('CV upload error:', err);
+      setCvError("Une erreur s'est produite lors du téléchargement.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveCV = () => {
+    setCvFile(null);
+    setCvError('');
   };
 
   return (
@@ -305,15 +368,57 @@ export default function EditProfileScreen({ navigation }) {
         </View>
 
         {/* Section 6: Documents & Liens */}
-        <View style={[styles.section, { borderBottomWidth: 0 }]}>
+        <View style={[styles.section, styles.lastSection]}>
           <Text style={styles.sectionTitle}>Documents & Liens</Text>
 
           <Text style={styles.label}>CV / Resume (PDF)</Text>
-          <TouchableOpacity style={styles.uploadBox}>
-            <MaterialIcons name="cloud-upload" size={28} color={colors.outline} />
-            <Text style={styles.uploadTitle}>Cliquer pour télécharger</Text>
-            <Text style={styles.uploadSubtitle}>Max 5MB • PDF, DOCX</Text>
-          </TouchableOpacity>
+
+          {!cvFile ? (
+            <TouchableOpacity
+              style={styles.uploadBox}
+              onPress={handlePickCV}
+              disabled={uploading}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons
+                name={uploading ? 'hourglass-top' : 'cloud-upload'}
+                size={28}
+                color={colors.outline}
+              />
+              <Text style={styles.uploadTitle}>
+                {uploading ? 'Chargement...' : 'Cliquer pour télécharger'}
+              </Text>
+              <Text style={styles.uploadSubtitle}>Max 5MB • PDF, DOCX</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.uploadedCard}>
+              <View style={styles.uploadedIcon}>
+                <MaterialIcons name="description" size={22} color={colors.primary} />
+              </View>
+              <View style={styles.uploadedInfo}>
+                <Text style={styles.uploadedName} numberOfLines={1}>
+                  {cvFile.name}
+                </Text>
+                <Text style={styles.uploadedMeta}>{formatBytes(cvFile.size)}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.uploadedReplace}
+                onPress={handlePickCV}
+                accessibilityLabel="Remplacer le CV"
+              >
+                <MaterialIcons name="refresh" size={18} color={colors.primary} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.uploadedRemove}
+                onPress={handleRemoveCV}
+                accessibilityLabel="Supprimer le CV"
+              >
+                <MaterialIcons name="delete-outline" size={18} color={colors.error} />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {!!cvError && <Text style={styles.cvErrorText}>{cvError}</Text>}
 
           <View style={[styles.fieldGroup, { marginTop: 20 }]}>
             <Text style={styles.label}>Portfolio / Website</Text>
@@ -379,13 +484,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   scrollContent: {
-    paddingBottom: 40,
+    flexGrow: 1,
+    // Match the last section's background so the extra bottom padding
+    // doesn't show up as a mismatched grey strip under the white card.
+    backgroundColor: colors.surfaceContainerLowest,
   },
   section: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant,
     backgroundColor: colors.surfaceContainerLowest,
+  },
+  lastSection: {
+    borderBottomWidth: 0,
+    paddingBottom: 40,
   },
   sectionTitle: {
     fontSize: 14,
@@ -660,6 +772,56 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.outline,
     marginTop: 2,
+  },
+  uploadedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 10,
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 12,
+  },
+  uploadedIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: colors.secondaryContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadedInfo: {
+    flex: 1,
+  },
+  uploadedName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.onSurface,
+  },
+  uploadedMeta: {
+    fontSize: 12,
+    color: colors.outline,
+    marginTop: 2,
+  },
+  uploadedReplace: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadedRemove: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cvErrorText: {
+    fontSize: 12,
+    color: colors.error,
+    marginTop: 8,
   },
   inputWithIcon: {
     position: 'relative',

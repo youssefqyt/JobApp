@@ -1,22 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-
-// ---- Colors (from your Tailwind theme) ----
-const COLORS = {
-  primary: '#006c49',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainer: '#edeeef',
-  outlineVariant: '#bbcabf',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-};
+import { useCandidateTheme } from '../../context/CandidateThemeContext'; // adjust relative path if needed
 
 // ---- Icons ----
-const BookmarkIcon = ({ color = COLORS.onSurfaceVariant, size = 24 }) => (
+const BookmarkIcon = ({ color, size = 24 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path
       d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
@@ -27,7 +15,7 @@ const BookmarkIcon = ({ color = COLORS.onSurfaceVariant, size = 24 }) => (
   </Svg>
 );
 
-const VerifiedIcon = ({ color = COLORS.primary, size = 16 }) => (
+const VerifiedIcon = ({ color, size = 16 }) => (
   <Svg width={size} height={size} viewBox="0 0 20 20" fill={color}>
     <Path
       fillRule="evenodd"
@@ -37,7 +25,7 @@ const VerifiedIcon = ({ color = COLORS.primary, size = 16 }) => (
   </Svg>
 );
 
-const LocationIcon = ({ color = COLORS.onSurfaceVariant, size = 14 }) => (
+const LocationIcon = ({ color, size = 14 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path
       d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
@@ -55,13 +43,16 @@ const LocationIcon = ({ color = COLORS.onSurfaceVariant, size = 14 }) => (
 );
 
 // ---- Tag component (handles both gray "CDI" style and green "Télétravail" style) ----
-const Tag = ({ label, variant = 'default' }) => (
-  <View style={[styles.tag, variant === 'highlight' && styles.tagHighlight]}>
-    <Text style={[styles.tagText, variant === 'highlight' && styles.tagTextHighlight]}>
-      {label}
-    </Text>
-  </View>
-);
+const Tag = ({ label, variant = 'default', colors }) => {
+  const styles = getStyles(colors);
+  return (
+    <View style={[styles.tag, variant === 'highlight' && styles.tagHighlight]}>
+      <Text style={[styles.tagText, variant === 'highlight' && styles.tagTextHighlight]}>
+        {label}
+      </Text>
+    </View>
+  );
+};
 
 /**
  * JobCard
@@ -89,6 +80,9 @@ export default function JobCard({
   onPress,
   onPressBookmark,
 }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -109,11 +103,11 @@ export default function JobCard({
 
             <View style={styles.companyRow}>
               <Text style={styles.companyText}>{company}</Text>
-              {verified && <VerifiedIcon />}
+              {verified && <VerifiedIcon color={colors.primary} />}
             </View>
 
             <View style={styles.locationRow}>
-              <LocationIcon />
+              <LocationIcon color={colors.onSurfaceVariant} />
               <Text style={styles.locationText}>{location}</Text>
             </View>
           </View>
@@ -121,14 +115,14 @@ export default function JobCard({
 
         {/* Bookmark button */}
         <TouchableOpacity onPress={onPressBookmark} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <BookmarkIcon />
+          <BookmarkIcon color={colors.onSurfaceVariant} />
         </TouchableOpacity>
       </View>
 
       {/* Tags */}
       <View style={styles.tagsRow}>
         {tags.map((tag, idx) => (
-          <Tag key={idx} label={tag.label} variant={tag.variant} />
+          <Tag key={idx} label={tag.label} variant={tag.variant} colors={colors} />
         ))}
       </View>
 
@@ -140,19 +134,20 @@ export default function JobCard({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    // card-shadow equivalent
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 20,
-    elevation: 2,
-  },
+const getStyles = (colors) => StyleSheet.create({
+ card: {
+  backgroundColor: colors.surfaceContainerLowest,
+  borderRadius: 16,
+  padding: 20,
+  marginBottom: 16,
+  borderWidth: 1,
+  borderColor: colors.cardBorder, // was colors.outlineVariant
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.03,
+  shadowRadius: 20,
+  elevation: 2,
+},
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -167,15 +162,15 @@ const styles = StyleSheet.create({
   avatar: {
     width: 56,
     height: 56,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '700',
     fontSize: 18,
   },
@@ -184,7 +179,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     fontWeight: '700',
     fontSize: 18,
     marginBottom: 2,
@@ -195,7 +190,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   companyText: {
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     fontSize: 14,
   },
   locationRow: {
@@ -205,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   locationText: {
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     fontSize: 12,
   },
   tagsRow: {
@@ -216,21 +211,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   tag: {
-    backgroundColor: COLORS.surfaceContainer,
+    backgroundColor: colors.surfaceContainer,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 8,
   },
   tagHighlight: {
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
   },
   tagText: {
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     fontSize: 12,
     fontWeight: '600',
   },
   tagTextHighlight: {
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   footerRow: {
     flexDirection: 'row',
@@ -238,7 +233,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   postedAtText: {
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     fontSize: 12,
   },
 });

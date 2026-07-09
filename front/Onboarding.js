@@ -22,6 +22,12 @@ const COLORS = {
   outlineVariant: '#bbcabf',
 };
 
+const LANGUAGES = [
+  { code: 'fr', label: 'FR', name: 'Français' },
+  { code: 'en', label: 'EN', name: 'English' },
+  { code: 'ar', label: 'AR', name: 'العربية' },
+];
+
 function IdentityCard({ iconName, title, description, badgeIcon, badgeLabel, ctaLabel, onPress, delay }) {
   const anim = useRef(new Animated.Value(0)).current;
   const [selected, setSelected] = useState(false);
@@ -73,6 +79,11 @@ function IdentityCard({ iconName, title, description, badgeIcon, badgeLabel, cta
 
 // onSelect: (userType: 'candidate' | 'company') => void
 export default function Onboarding({ onSelect, onLoginPress }) {
+  const [langCode, setLangCode] = useState('fr');
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
+
+  const currentLangLabel = LANGUAGES.find((l) => l.code === langCode).label;
+
   return (
     <View style={styles.root}>
       {/* Header */}
@@ -86,11 +97,54 @@ export default function Onboarding({ onSelect, onLoginPress }) {
             <Text style={styles.headerLink}>Connexion</Text>
           </TouchableOpacity>
           <Text style={styles.headerDivider}>|</Text>
-          <TouchableOpacity>
-            <Text style={styles.headerLink}>FR</Text>
-          </TouchableOpacity>
+
+          {/* Language switcher */}
+          <View>
+            <TouchableOpacity
+              style={styles.langButton}
+              onPress={() => setLangMenuOpen((v) => !v)}
+            >
+              <Text style={styles.headerLink}>{currentLangLabel}</Text>
+              <MaterialIcons
+                name={langMenuOpen ? 'arrow-drop-up' : 'arrow-drop-down'}
+                size={18}
+                color={COLORS.onSurfaceVariant}
+              />
+            </TouchableOpacity>
+
+            {langMenuOpen && (
+              <View style={styles.langMenu}>
+                {LANGUAGES.map((lang) => (
+                  <TouchableOpacity
+                    key={lang.code}
+                    style={[
+                      styles.langMenuItem,
+                      lang.code === langCode && styles.langMenuItemActive,
+                    ]}
+                    onPress={() => {
+                      setLangCode(lang.code);
+                      setLangMenuOpen(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.langMenuItemText,
+                        lang.code === langCode && styles.langMenuItemTextActive,
+                      ]}
+                    >
+                      {lang.label} · {lang.name}
+                    </Text>
+                    {lang.code === langCode && (
+                      <MaterialIcons name="check" size={16} color={COLORS.primary} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
         </View>
       </View>
+
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -163,6 +217,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.outlineVariant,
     backgroundColor: COLORS.background,
+    zIndex: 10,
   },
   logo: {
     fontSize: 18,
@@ -181,6 +236,45 @@ const styles = StyleSheet.create({
   },
   headerDivider: {
     color: COLORS.outlineVariant,
+  },
+  langButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langMenu: {
+    position: 'absolute',
+    top: 28,
+    right: 0,
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderWidth: 1,
+    borderColor: COLORS.outlineVariant,
+    borderRadius: 10,
+    paddingVertical: 6,
+    minWidth: 160,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+    zIndex: 20,
+  },
+  langMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  langMenuItemActive: {
+    backgroundColor: COLORS.secondaryContainer,
+  },
+  langMenuItemText: {
+    fontSize: 13,
+    color: COLORS.onSurfaceVariant,
+  },
+  langMenuItemTextActive: {
+    color: COLORS.onSecondaryContainer,
+    fontWeight: '700',
   },
   scrollContent: {
     paddingHorizontal: 16,

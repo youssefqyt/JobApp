@@ -4,8 +4,7 @@ import Search from './Search';
 import IA from './IA';
 import Learning from './Learning';
 import Profile from './Profile/Profile';
-
-export default function CandidateNavigator({
+import { CandidateThemeProvider } from '../context/CandidateThemeContext';export default function CandidateNavigator({
   initialTab = 'Accueil',
   initialSettingsPage = null,
   onLogout,
@@ -39,5 +38,7 @@ export default function CandidateNavigator({
     }
   };
 
-  return renderScreen();
+  return (<CandidateThemeProvider>
+    {renderScreen()}
+  </CandidateThemeProvider>);
 }

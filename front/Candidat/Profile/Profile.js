@@ -14,20 +14,7 @@ import LanguageScreen from './Settings/Language';
 import HelpCenter from './Settings/HelpCenter';
 import AboutScreen from './Settings/About';
 import PasswordScreen from './Settings/Password';
-
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  outline: '#6c7a71',
-  outlineVariant: '#bbcabf',
-  surface: '#f8f9fa',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerHigh: '#e7e8e9',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-};
+import { useCandidateTheme } from '../../context/CandidateThemeContext'; // adjust relative path if needed
 
 // ---- Static profile data — replace with real data / props later ----
 const PROFILE = {
@@ -51,15 +38,17 @@ const PROFILE = {
   extraSkillsCount: 3,
 };
 
-function Card({ children, style }) {
+function Card({ children, style, colors }) {
+  const styles = getStyles(colors);
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
-function InfoRow({ icon, title, subtitle, meta }) {
+function InfoRow({ icon, title, subtitle, meta, colors }) {
+  const styles = getStyles(colors);
   return (
     <View style={styles.infoRow}>
       <View style={styles.infoIconWrap}>
-        <MaterialIcons name={icon} size={20} color={COLORS.primary} />
+        <MaterialIcons name={icon} size={20} color={colors.primary} />
       </View>
       <View style={styles.infoTextWrap}>
         <Text style={styles.infoTitle}>{title}</Text>
@@ -79,6 +68,8 @@ export default function Profile({
   initialSettingsPage = null,
   onLogout,
 }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsPage, setSettingsPage] = useState(initialSettingsPage);
 
@@ -121,7 +112,7 @@ export default function Profile({
           style={styles.settingsButton}
           onPress={() => setShowSettings(true)}
         >
-          <MaterialIcons name="settings" size={22} color={COLORS.onSurfaceVariant} />
+          <MaterialIcons name="settings" size={22} color={colors.onSurfaceVariant} />
         </TouchableOpacity>
       </View>
 
@@ -130,7 +121,7 @@ export default function Profile({
         showsVerticalScrollIndicator={false}
       >
         {/* Main profile card */}
-        <Card>
+        <Card colors={colors}>
           <View style={styles.identityRow}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{PROFILE.initials}</Text>
@@ -139,14 +130,14 @@ export default function Profile({
               <Text style={styles.name}>{PROFILE.name}</Text>
               <Text style={styles.roleText}>{PROFILE.role}</Text>
               <View style={styles.locationRow}>
-                <MaterialIcons name="location-on" size={14} color={COLORS.outline} />
+                <MaterialIcons name="location-on" size={14} color={colors.outline} />
                 <Text style={styles.locationText}>{PROFILE.location}</Text>
               </View>
               <TouchableOpacity
                 style={styles.editButton}
                 onPress={() => handleOpenSettingsPage('editProfile')}
               >
-                <MaterialIcons name="edit" size={16} color={COLORS.primary} />
+                <MaterialIcons name="edit" size={16} color={colors.primary} />
                 <Text style={styles.editButtonText}>Modifier le profil</Text>
               </TouchableOpacity>
             </View>
@@ -164,7 +155,7 @@ export default function Profile({
               />
             </View>
             <View style={styles.completionHintRow}>
-              <MaterialIcons name="add-circle" size={13} color={COLORS.primary} />
+              <MaterialIcons name="add-circle" size={13} color={colors.primary} />
               <Text style={styles.completionHint}>
                 Ajoutez votre portfolio pour atteindre 90%
               </Text>
@@ -173,39 +164,41 @@ export default function Profile({
         </Card>
 
         {/* Bio */}
-        <Card>
+        <Card colors={colors}>
           <Text style={styles.cardTitle}>Bio / Résumé</Text>
           <Text style={styles.bioText}>{PROFILE.bio}</Text>
         </Card>
 
         {/* Expériences */}
-        <Card>
+        <Card colors={colors}>
           <Text style={styles.cardTitle}>Expériences</Text>
           <InfoRow
             icon="work"
             title={PROFILE.experience.title}
             subtitle={PROFILE.experience.company}
             meta={PROFILE.experience.period}
+            colors={colors}
           />
         </Card>
 
         {/* Éducation */}
-        <Card>
+        <Card colors={colors}>
           <Text style={styles.cardTitle}>Éducation</Text>
           <InfoRow
             icon="school"
             title={PROFILE.education.title}
             subtitle={PROFILE.education.school}
             meta={PROFILE.education.year}
+            colors={colors}
           />
         </Card>
 
         {/* CV Builder IA */}
-        <Card>
+        <Card colors={colors}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardTitle}>CV Builder IA</Text>
             <TouchableOpacity style={styles.pdfButton} onPress={onViewCvPdf}>
-              <MaterialIcons name="picture-as-pdf" size={16} color={COLORS.primary} />
+              <MaterialIcons name="picture-as-pdf" size={16} color={colors.primary} />
               <Text style={styles.pdfButtonText}>Voir PDF</Text>
             </TouchableOpacity>
           </View>
@@ -213,6 +206,7 @@ export default function Profile({
             icon="auto-awesome"
             title="Générer un CV optimisé"
             subtitle="Utilisez l'IA pour adapter votre CV aux offres d'emploi."
+            colors={colors}
           />
         </Card>
 
@@ -221,7 +215,7 @@ export default function Profile({
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardTitle}>Compétences</Text>
             <TouchableOpacity style={styles.addButton} onPress={onAddSkill}>
-              <MaterialIcons name="add" size={16} color={COLORS.primary} />
+              <MaterialIcons name="add" size={16} color={colors.primary} />
               <Text style={styles.addButtonText}>Ajouter</Text>
             </TouchableOpacity>
           </View>
@@ -272,10 +266,10 @@ export default function Profile({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   header: {
     height: 56,
@@ -284,13 +278,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surface,
+    borderBottomColor: colors.outlineVariant,
+    backgroundColor: colors.background,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   settingsButton: {
     width: 40,
@@ -306,9 +300,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   card: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -329,14 +323,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 14,
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   identityText: {
     flex: 1,
@@ -344,11 +338,11 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   roleText: {
     fontSize: 14,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   locationRow: {
@@ -359,7 +353,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
-    color: COLORS.outline,
+    color: colors.outline,
   },
   editButton: {
     flexDirection: 'row',
@@ -371,7 +365,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 
   // Completion
@@ -386,24 +380,24 @@ const styles = StyleSheet.create({
   completionLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   completionValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressTrack: {
     width: '100%',
     height: 10,
     borderRadius: 999,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    backgroundColor: colors.surfaceContainerHigh,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
     borderRadius: 999,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
   },
   completionHintRow: {
     flexDirection: 'row',
@@ -412,14 +406,14 @@ const styles = StyleSheet.create({
   },
   completionHint: {
     fontSize: 12,
-    color: COLORS.primary,
+    color: colors.primary,
   },
 
   // Generic card title
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -430,7 +424,7 @@ const styles = StyleSheet.create({
   bioText: {
     fontSize: 14,
     lineHeight: 21,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 10,
   },
 
@@ -444,7 +438,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: 'rgba(173,237,211,0.3)',
+    backgroundColor: colors.secondaryContainer,
+    opacity: 0.3,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -454,16 +449,16 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   infoSubtitle: {
     fontSize: 12,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   infoMeta: {
     fontSize: 12,
-    color: COLORS.outline,
+    color: colors.outline,
     marginTop: 2,
   },
 
@@ -479,7 +474,7 @@ const styles = StyleSheet.create({
   pdfButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 
   // Skills
@@ -497,7 +492,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   skillsWrap: {
     flexDirection: 'row',
@@ -508,22 +503,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: 'rgba(173,237,211,0.2)',
+    backgroundColor: colors.secondaryContainer,
+    opacity: 0.9,
     borderWidth: 1,
-    borderColor: COLORS.secondaryContainer,
+    borderColor: colors.secondaryContainer,
   },
   skillChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   skillChipMuted: {
-    backgroundColor: COLORS.surfaceContainerHigh,
-    borderColor: COLORS.outlineVariant,
+    backgroundColor: colors.surfaceContainerHigh,
+    borderColor: colors.outlineVariant,
   },
   skillChipMutedText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
 });
