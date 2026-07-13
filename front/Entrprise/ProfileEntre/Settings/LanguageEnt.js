@@ -10,7 +10,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
-import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
+import { useCompanyTheme } from '../../../context/EnterpriseThemeContext';
 
 const LANGUAGES = [
   {
@@ -34,7 +34,7 @@ const LANGUAGES = [
 ];
 
 export default function LanguageScreen({ navigation }) {
-  const { colors } = useCandidateTheme();
+  const { colors } = useCompanyTheme();
   const styles = getStyles(colors);
   const [selected, setSelected] = useState('fr');
 

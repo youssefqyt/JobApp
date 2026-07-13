@@ -8,26 +8,12 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
-// ---- Colors (from your Tailwind theme) ----
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onPrimary: '#ffffff',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  onSecondaryContainer: '#306d58',
-  secondaryContainer: '#adedd3',
-  surface: '#f8f9fa',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-};
+import { useCompanyTheme } from '../context/EnterpriseThemeContext';
 
 // Contract type options — CDI / CDD / Freelance / Stage / Alternance
 const CONTRACT_TYPES = ['CDI', 'CDD', 'Freelance', 'Stage', 'Alternance'];
 
-function ContractOption({ label, selected, onPress }) {
+function ContractOption({ label, selected, onPress, styles }) {
   return (
     <TouchableOpacity style={styles.contractOption} activeOpacity={0.7} onPress={onPress}>
       <View style={[styles.radioOuter, selected && styles.radioOuterSelected]}>
@@ -39,6 +25,9 @@ function ContractOption({ label, selected, onPress }) {
 }
 
 export default function PostJob({ onBack, onPublish }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
+
   const [jobTitle, setJobTitle] = useState('Développeur Full Stack');
   const [contractType, setContractType] = useState('CDI');
   const [location, setLocation] = useState('Tunis, Tunisie (Télétravail)');
@@ -52,7 +41,7 @@ export default function PostJob({ onBack, onPublish }) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backRow} activeOpacity={0.7} onPress={onBack}>
-          <MaterialIcons name="arrow-back" size={22} color={COLORS.primary} />
+          <MaterialIcons name="arrow-back" size={22} color={colors.primary} />
           <Text style={styles.headerTitle}>Poste Job</Text>
         </TouchableOpacity>
       </View>
@@ -72,7 +61,7 @@ export default function PostJob({ onBack, onPublish }) {
               value={jobTitle}
               onChangeText={setJobTitle}
               placeholder="ex: Développeur Full-Stack Senior"
-              placeholderTextColor={COLORS.onSurfaceVariant}
+              placeholderTextColor={colors.onSurfaceVariant}
             />
           </View>
 
@@ -86,6 +75,7 @@ export default function PostJob({ onBack, onPublish }) {
                   label={type}
                   selected={contractType === type}
                   onPress={() => setContractType(type)}
+                  styles={styles}
                 />
               ))}
             </View>
@@ -95,13 +85,13 @@ export default function PostJob({ onBack, onPublish }) {
           <View style={styles.field}>
             <Text style={styles.label}>Lieu</Text>
             <View style={styles.inputWithIcon}>
-              <MaterialIcons name="location-on" size={20} color={COLORS.onSurfaceVariant} />
+              <MaterialIcons name="location-on" size={20} color={colors.onSurfaceVariant} />
               <TextInput
                 style={styles.inputIconField}
                 value={location}
                 onChangeText={setLocation}
                 placeholder="Tunis, Tunisie"
-                placeholderTextColor={COLORS.onSurfaceVariant}
+                placeholderTextColor={colors.onSurfaceVariant}
               />
             </View>
           </View>
@@ -114,7 +104,7 @@ export default function PostJob({ onBack, onPublish }) {
               value={missions}
               onChangeText={setMissions}
               placeholder="Décrivez les missions et les responsabilités..."
-              placeholderTextColor={COLORS.onSurfaceVariant}
+              placeholderTextColor={colors.onSurfaceVariant}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -129,7 +119,7 @@ export default function PostJob({ onBack, onPublish }) {
               value={profile}
               onChangeText={setProfile}
               placeholder="Décrivez les compétences et l'expérience recherchées..."
-              placeholderTextColor={COLORS.onSurfaceVariant}
+              placeholderTextColor={colors.onSurfaceVariant}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -142,7 +132,7 @@ export default function PostJob({ onBack, onPublish }) {
             activeOpacity={0.85}
             onPress={() => onPublish && onPublish({ jobTitle, contractType, location, missions, profile })}
           >
-            <MaterialIcons name="send" size={20} color={COLORS.onPrimary} />
+            <MaterialIcons name="send" size={20} color={colors.onPrimary} />
             <Text style={styles.submitButtonText}>Publier l'offre</Text>
           </TouchableOpacity>
         </View>
@@ -150,7 +140,7 @@ export default function PostJob({ onBack, onPublish }) {
         {/* Tips card */}
         <View style={styles.tipsCard}>
           <View style={styles.tipsHeaderRow}>
-            <MaterialIcons name="lightbulb" size={20} color={COLORS.primary} />
+            <MaterialIcons name="lightbulb" size={20} color={colors.primary} />
             <Text style={styles.tipsTitle}>Conseils de recrutement</Text>
           </View>
           <Text style={styles.tipsText}>
@@ -164,18 +154,18 @@ export default function PostJob({ onBack, onPublish }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   header: {
     height: 56,
     justifyContent: 'center',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surface,
+    borderBottomColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   backRow: {
     flexDirection: 'row',
@@ -185,7 +175,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -195,14 +185,14 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     marginBottom: 20,
     letterSpacing: -0.4,
   },
   formCard: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 16,
     padding: 20,
     gap: 24,
@@ -214,24 +204,24 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   input: {
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 10,
     padding: 16,
     fontSize: 16,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   inputWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 10,
     paddingHorizontal: 14,
   },
@@ -239,16 +229,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 16,
     fontSize: 16,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   textarea: {
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 10,
     padding: 16,
     fontSize: 16,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     minHeight: 100,
   },
 
@@ -262,7 +252,7 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 10,
   },
   radioOuter: {
@@ -270,23 +260,23 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     alignItems: 'center',
     justifyContent: 'center',
   },
   radioOuterSelected: {
-    borderColor: COLORS.primaryContainer,
+    borderColor: colors.primaryContainer,
   },
   radioInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
   },
   contractLabel: {
     fontSize: 16,
     fontWeight: '500',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
 
   // Submit button
@@ -295,7 +285,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 16,
     marginTop: 4,
@@ -303,12 +293,12 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.onPrimary,
+    color: colors.onPrimary,
   },
 
   // Tips card
   tipsCard: {
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     borderRadius: 16,
     padding: 20,
   },
@@ -321,12 +311,12 @@ const styles = StyleSheet.create({
   tipsTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   tipsText: {
     fontSize: 14,
     lineHeight: 20,
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
     opacity: 0.9,
   },
 });

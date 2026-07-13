@@ -1,19 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
-// ---- Colors (same theme as your other components) ----
-const COLORS = {
-  primary: '#006c49',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerHighest: '#e1e3e4',
-  outlineVariant: '#bbcabf',
-  primaryFixedDim: '#4edea3',
-  onPrimaryFixed: '#002113',
-  matchBg: '#f3e8fd',
-  matchText: '#7c3aed',
-};
+import { useCompanyTheme } from '../../context/EnterpriseThemeContext';
 
 export default function CandidateCard({
   initials,
@@ -26,6 +13,9 @@ export default function CandidateCard({
   onProfilePress,
   onContactPress,
 }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
+
   return (
     <View style={styles.card}>
       {/* ---- Top row: avatar, name/subtitle, match badge ---- */}
@@ -83,12 +73,12 @@ export default function CandidateCard({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   card: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
@@ -97,8 +87,6 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 2,
   },
-
-  // ---- Top row ----
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -107,13 +95,13 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 16,
   },
@@ -124,26 +112,24 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   subtitle: {
     fontSize: 13,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   matchBadge: {
-    backgroundColor: COLORS.matchBg,
+    backgroundColor: colors.secondaryContainer,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
   },
   matchText: {
-    color: COLORS.matchText,
+    color: colors.onSecondaryContainer,
     fontWeight: '700',
     fontSize: 12,
   },
-
-  // ---- Tags ----
   tagsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -151,7 +137,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   tag: {
-    backgroundColor: COLORS.surfaceContainerHighest,
+    backgroundColor: colors.surfaceContainerHighest,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -159,10 +145,8 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
-
-  // ---- Actions ----
   actionsRow: {
     flexDirection: 'row',
     gap: 10,
@@ -173,13 +157,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   profileButtonText: {
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     fontWeight: '700',
     fontSize: 14,
   },
@@ -189,10 +173,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   contactButtonText: {
-    color: '#ffffff',
+    color: colors.white,
     fontWeight: '700',
     fontSize: 14,
   },

@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
-
-// ---- Colors (from your Tailwind theme) ----
-const COLORS = {
-  primary: '#006c49',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-};
+import { useCompanyTheme } from '../../context/EnterpriseThemeContext';
 
 // ---- Icons (mirroring the SVG paths from your HTML) ----
 const HomeIcon = ({ color }) => (
@@ -87,6 +80,8 @@ const TABS = [
 ];
 
 export default function BottomNavBarEntreprise({ initialTab = 'Accueil', onTabChange }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
   const [active, setActive] = useState(initialTab);
 
   const handlePress = (key) => {
@@ -98,7 +93,7 @@ export default function BottomNavBarEntreprise({ initialTab = 'Accueil', onTabCh
     <View style={styles.navBar}>
       {TABS.map(({ key, Icon }) => {
         const isActive = active === key;
-        const color = isActive ? COLORS.primary : COLORS.onSurfaceVariant;
+        const color = isActive ? colors.primary : colors.onSurfaceVariant;
 
         return (
           <TouchableOpacity
@@ -125,14 +120,14 @@ export default function BottomNavBarEntreprise({ initialTab = 'Accueil', onTabCh
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderTopWidth: 1,
-    borderTopColor: COLORS.outlineVariant,
+    borderTopColor: colors.outlineVariant,
     paddingHorizontal: 24,
     paddingVertical: 12,
     // Fix to bottom if used as a custom tab bar:
@@ -151,15 +146,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   indicatorActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   label: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 4,
   },
   labelActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
 });

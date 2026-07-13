@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
+import { useCompanyTheme } from '../../../context/EnterpriseThemeContext';
 
 const HERO_IMAGE_URL =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBSx9OonEwDOHI9QMGY1SjwzIHnni62oDXLG6W7J-57EJb7roOxvv2D5wbloUvJbjsfWAcAAk9DTi2Krzmr1IxPMAYI9102Nfts6-Hfzwd2XVmnMcRHf1rikuxgtMfcl3AcPsVAwN3di1YYC9Owq3nJpTHr-iwZVzcblfKyFSEmJmdPUr6au6L1BFsuId953IuGZIwv3bRgCBgfWQUl8uBTW-66MmzVDPUDWK4LUw1GOKsDCmwdg4vIWqDFln6eRbujoAQwhM1ZbIuA';
@@ -21,7 +21,7 @@ const LEGAL_LINKS = [
 ];
 
 export default function About({ navigation }) {
-  const { colors } = useCandidateTheme();
+  const { colors } = useCompanyTheme();
   const styles = getStyles(colors);
 
   const openWebsite = () => {

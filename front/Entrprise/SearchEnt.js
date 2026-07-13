@@ -9,21 +9,10 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import CandidateCard from './componentEnt/JobCard';
-
-const COLORS = {
-  primary: '#006c49',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainer: '#edeeef',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-  outlineVariant: '#bbcabf',
-  background: '#f8f9fa',
-};
+import { useCompanyTheme } from '../context/EnterpriseThemeContext';
 
 // ---- Icons ----
-const SearchIcon = ({ color = COLORS.onSurfaceVariant, size = 22 }) => (
+const SearchIcon = ({ color, size = 22 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path
       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
@@ -34,7 +23,7 @@ const SearchIcon = ({ color = COLORS.onSurfaceVariant, size = 22 }) => (
   </Svg>
 );
 
-const PlusIcon = ({ color = COLORS.onSurfaceVariant, size = 18 }) => (
+const PlusIcon = ({ color, size = 18 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}>
     <Path d="M12 4v16m-8-8h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
   </Svg>
@@ -44,6 +33,8 @@ const PlusIcon = ({ color = COLORS.onSurfaceVariant, size = 18 }) => (
 const FILTERS = ['Tous', 'React.js', 'Tunis', 'Disponible'];
 
 // ---- Candidate data (matching the HTML mockup) ----
+// avatarColor kept as fixed brand accents (not theme-driven) so each
+// candidate keeps a distinct identity color across light/dark mode.
 const CANDIDATES = [
   {
     initials: 'AM',
@@ -53,7 +44,7 @@ const CANDIDATES = [
     location: 'Tunis',
     matchPercent: 94,
     skills: ['React', 'Node.js', 'TypeScript'],
-    avatarColor: COLORS.primary,
+    avatarColor: '#006c49',
   },
   {
     initials: 'SB',
@@ -78,6 +69,8 @@ const CANDIDATES = [
 ];
 
 export default function Recherche() {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
   const [activeFilter, setActiveFilter] = useState('Tous');
   const [query, setQuery] = useState('');
 
@@ -96,11 +89,11 @@ export default function Recherche() {
       >
         {/* ---- Search bar ---- */}
         <View style={styles.searchWrapper}>
-          <SearchIcon />
+          <SearchIcon color={colors.onSurfaceVariant} />
           <TextInput
             style={styles.searchInput}
             placeholder="Poste, compétence, nom..."
-            placeholderTextColor={COLORS.onSurfaceVariant}
+            placeholderTextColor={colors.onSurfaceVariant}
             value={query}
             onChangeText={setQuery}
           />
@@ -131,7 +124,7 @@ export default function Recherche() {
             );
           })}
           <TouchableOpacity style={styles.filterChip} activeOpacity={0.7}>
-            <PlusIcon />
+            <PlusIcon color={colors.onSurfaceVariant} />
             <Text style={styles.filterChipText}>Filtres</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -162,27 +155,27 @@ export default function Recherche() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 16,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
     letterSpacing: -0.4,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   headerSubtitle: {
     fontSize: 12,
     fontWeight: '500',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   scrollView: {
@@ -197,9 +190,9 @@ const styles = StyleSheet.create({
   searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 16,
@@ -209,7 +202,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingLeft: 10,
     fontSize: 16,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     outlineStyle: 'none',
     outlineWidth: 0,
     outlineColor: 'transparent',
@@ -232,27 +225,27 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   filterChipActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.secondaryContainer,
+    borderColor: colors.primary,
+    backgroundColor: colors.secondaryContainer,
   },
   filterChipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   filterChipTextActive: {
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
 
   // ---- Results ----
   resultsLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 16,

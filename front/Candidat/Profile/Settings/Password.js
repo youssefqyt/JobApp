@@ -12,24 +12,12 @@ import {
 import { MaterialIcons } from '@expo/vector-icons'; // npm install @expo/vector-icons
 // If not using Expo: npm install react-native-vector-icons
 // and import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-
-// ---- Theme tokens (ported from the web mockup) ----
-const colors = {
-  primary: '#006c49',
-  onPrimary: '#ffffff',
-  onPrimaryFixedVariant: '#005236',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-  surface: '#f8f9fa',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  outline: '#6c7a71',
-  outlineVariant: '#bbcabf',
-};
+import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
 
 export default function ChangePasswordScreen({ navigation }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -81,6 +69,8 @@ export default function ChangePasswordScreen({ navigation }) {
           onChangeText={setCurrentPassword}
           visible={showCurrent}
           onToggleVisible={() => setShowCurrent((v) => !v)}
+          colors={colors}
+          styles={styles}
         />
 
         {/* New Password */}
@@ -90,6 +80,8 @@ export default function ChangePasswordScreen({ navigation }) {
           onChangeText={setNewPassword}
           visible={showNew}
           onToggleVisible={() => setShowNew((v) => !v)}
+          colors={colors}
+          styles={styles}
         />
 
         {/* Security Requirements */}
@@ -103,11 +95,13 @@ export default function ChangePasswordScreen({ navigation }) {
             <Text style={styles.reqTitle}>Exigences de sécurité</Text>
           </View>
 
-          <RequirementItem label="Au moins 8 caractères" valid={reqLength} />
-          <RequirementItem label="Au moins un chiffre" valid={reqNumber} />
+          <RequirementItem label="Au moins 8 caractères" valid={reqLength} colors={colors} styles={styles} />
+          <RequirementItem label="Au moins un chiffre" valid={reqNumber} colors={colors} styles={styles} />
           <RequirementItem
             label="Au moins un caractère spécial"
             valid={reqSpecial}
+            colors={colors}
+            styles={styles}
           />
         </View>
 
@@ -118,6 +112,8 @@ export default function ChangePasswordScreen({ navigation }) {
           onChangeText={setConfirmPassword}
           visible={showConfirm}
           onToggleVisible={() => setShowConfirm((v) => !v)}
+          colors={colors}
+          styles={styles}
         />
 
         {/* Info Alert Card */}
@@ -150,8 +146,10 @@ export default function ChangePasswordScreen({ navigation }) {
 }
 
 // ---- Reusable subcomponents ----
+// Both take `colors` + `styles` as props now that they live outside
+// the component and can no longer close over a module-level theme.
 
-function PasswordField({ label, value, onChangeText, visible, onToggleVisible }) {
+function PasswordField({ label, value, onChangeText, visible, onToggleVisible, colors, styles }) {
   return (
     <View style={styles.fieldGroup}>
       <Text style={styles.label}>{label}</Text>
@@ -188,7 +186,7 @@ function PasswordField({ label, value, onChangeText, visible, onToggleVisible })
   );
 }
 
-function RequirementItem({ label, valid }) {
+function RequirementItem({ label, valid, colors, styles }) {
   return (
     <View style={styles.reqItem}>
       <MaterialIcons
@@ -205,17 +203,17 @@ function RequirementItem({ label, valid }) {
 
 // ---- Styles ----
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   header: {
     height: 64,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant,
   },
@@ -315,7 +313,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.secondaryContainer,
     borderWidth: 1,
-    borderColor: 'rgba(187,202,191,0.3)',
+    borderColor: colors.outlineVariant,
   },
   infoText: {
     flex: 1,

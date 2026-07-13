@@ -1,17 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
-// ---- Colors (from your Tailwind theme) ----
-const COLORS = {
-  primary: '#006c49',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  onSecondaryContainer: '#306d58',
-  secondaryContainer: '#adedd3',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-  white: '#ffffff',
-};
+import { useCompanyTheme } from '../../context/EnterpriseThemeContext';
 
 /**
  * CandidateMatchCard
@@ -28,6 +17,8 @@ const COLORS = {
  * - onPress: optional press handler
  */
 export default function CandidateMatchCard({ initials, name, role, matchPercent, onPress }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
   const Wrapper = onPress ? TouchableOpacity : View;
 
   return (
@@ -44,12 +35,12 @@ export default function CandidateMatchCard({ initials, name, role, matchPercent,
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   card: {
     width: 180,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 16,
     paddingVertical: 24,
     paddingHorizontal: 16,
@@ -64,7 +55,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 14,
@@ -72,29 +63,29 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
   },
   name: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     marginBottom: 2,
   },
   role: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 14,
   },
   matchPill: {
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
   },
   matchText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
 });

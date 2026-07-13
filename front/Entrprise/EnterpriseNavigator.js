@@ -3,10 +3,10 @@ import RecruiterDashboard from './Recruiterdashboard';
 import Recherche from './SearchEnt';
 import AIAssistant from './IAEnt';
 import PostJob from './Postjob';
-import EnterpriseProfile from './EnterpriseProfile';
+import EnterpriseProfile from './ProfileEntre/EnterpriseProfile';
 import OffresATSScreen from './Offers';
 import BottomNavBarEntreprise from './componentEnt/NavBarEnt';
-
+import { CompanyThemeProvider } from '../context/EnterpriseThemeContext';
 export default function EnterpriseNavigator({ onLogout }) {
   const [activeTab, setActiveTab] = useState('Accueil');
   const [showPostJob, setShowPostJob] = useState(false);
@@ -42,7 +42,7 @@ export default function EnterpriseNavigator({ onLogout }) {
   };
 
   return (
-    <>
+    <CompanyThemeProvider>
       {renderScreen()}
       <BottomNavBarEntreprise
         initialTab={activeTab}
@@ -51,6 +51,6 @@ export default function EnterpriseNavigator({ onLogout }) {
           setActiveTab(tab);
         }}
       />
-    </>
+    </CompanyThemeProvider>
   );
 }

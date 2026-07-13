@@ -8,8 +8,14 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from 'expo-speech-recognition';
 import BottomNavBar from './component/Navbar';
 import { useCandidateTheme } from '../context/CandidateThemeContext';
 
@@ -97,6 +103,39 @@ function QuickReplyChip({ label, onPress, styles }) {
   );
 }
 
+function FileBubble({ name, time, styles, colors }) {
+  return (
+    <View style={styles.userMessageWrap}>
+      <View style={[styles.userBubble, styles.fileBubble]}>
+        <MaterialIcons name="insert-drive-file" size={20} color={colors.white} />
+        <Text style={styles.userBodyText} numberOfLines={1}>
+          {name}
+        </Text>
+      </View>
+      <Text style={styles.timeTextRight}>{time}</Text>
+    </View>
+  );
+}
+
+function AttachmentChip({ file, onRemove, colors, styles }) {
+  const isImage = file.mimeType?.startsWith('image/');
+  return (
+    <View style={styles.attachmentChip}>
+      <MaterialIcons
+        name={isImage ? 'image' : 'insert-drive-file'}
+        size={16}
+        color={colors.onSurfaceVariant}
+      />
+      <Text style={styles.attachmentChipText} numberOfLines={1}>
+        {file.name}
+      </Text>
+      <TouchableOpacity onPress={() => onRemove(file.id)} hitSlop={8}>
+        <MaterialIcons name="close" size={14} color={colors.onSurfaceVariant} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 export default function IA({ activeTab, onTabChange }) {
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
@@ -104,7 +143,12 @@ export default function IA({ activeTab, onTabChange }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [showQuickReply, setShowQuickReply] = useState(true);
   const [input, setInput] = useState('');
+  const [attachments, setAttachments] = useState([]);
+  const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef(null);
+  // Tracks the input value at the moment recognition started, so live
+  // partial transcripts don't wipe out text the user had already typed.
+  const baseInputRef = useRef('');
 
   const currentTime = () =>
     new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -114,17 +158,121 @@ export default function IA({ activeTab, onTabChange }) {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
   };
 
+  // ---- Voice input (speech-to-text) ----
+  useSpeechRecognitionEvent('start', () => setIsListening(true));
+
+  useSpeechRecognitionEvent('end', () => setIsListening(false));
+
+  useSpeechRecognitionEvent('result', (event) => {
+    const transcript = event.results?.[0]?.transcript ?? '';
+    const base = baseInputRef.current;
+    setInput(base ? `${base} ${transcript}` : transcript);
+  });
+
+  useSpeechRecognitionEvent('error', (event) => {
+    setIsListening(false);
+    if (event.error === 'no-speech') return; // silence timeout, no need to alert
+    Alert.alert(
+      'Erreur',
+      "La reconnaissance vocale a échoué. Veuillez réessayer."
+    );
+  });
+
+  const handleMicPress = async () => {
+    if (isListening) {
+      ExpoSpeechRecognitionModule.stop();
+      return;
+    }
+
+    try {
+      const permission = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Micro requis',
+          "Veuillez autoriser l'accès au micro dans les réglages pour utiliser la saisie vocale."
+        );
+        return;
+      }
+
+      baseInputRef.current = input.trim();
+      ExpoSpeechRecognitionModule.start({
+        lang: 'fr-FR',
+        interimResults: true,
+        continuous: false,
+        maxAlternatives: 1,
+      });
+    } catch (error) {
+      Alert.alert(
+        'Erreur',
+        "Impossible de démarrer la saisie vocale. Veuillez réessayer."
+      );
+    }
+  };
+
   const handleSend = () => {
-    if (!input.trim()) return;
-    appendMessage({
-      id: Date.now().toString(),
-      from: 'user',
-      type: 'text',
-      text: input.trim(),
-      time: currentTime(),
-    });
-    setInput('');
-    // TODO: call your assistant API here and append the bot's reply
+    if (isListening) {
+      ExpoSpeechRecognitionModule.stop();
+    }
+
+    const hasText = input.trim().length > 0;
+    const hasAttachments = attachments.length > 0;
+    if (!hasText && !hasAttachments) return;
+
+    if (hasAttachments) {
+      attachments.forEach((file) => {
+        appendMessage({
+          id: `${Date.now()}-${file.id}`,
+          from: 'user',
+          type: 'file',
+          text: file.name,
+          time: currentTime(),
+        });
+      });
+      setAttachments([]);
+    }
+
+    if (hasText) {
+      appendMessage({
+        id: Date.now().toString(),
+        from: 'user',
+        type: 'text',
+        text: input.trim(),
+        time: currentTime(),
+      });
+      setInput('');
+    }
+    // TODO: call your assistant API here (with text and/or file uris) and append the bot's reply
+  };
+
+  const handleAttachPress = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        multiple: true,
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled) return;
+
+      const picked = (result.assets || []).map((asset) => ({
+        id: `${asset.uri}-${asset.name}-${Date.now()}-${Math.random()}`,
+        name: asset.name,
+        uri: asset.uri,
+        size: asset.size,
+        mimeType: asset.mimeType,
+      }));
+
+      setAttachments((prev) => [...prev, ...picked]);
+    } catch (error) {
+      Alert.alert(
+        'Erreur',
+        "Impossible d'ajouter le fichier. Veuillez réessayer."
+      );
+    }
+  };
+
+  const handleRemoveAttachment = (id) => {
+    setAttachments((prev) => prev.filter((file) => file.id !== id));
   };
 
   const handleQuickReply = () => {
@@ -177,6 +325,17 @@ export default function IA({ activeTab, onTabChange }) {
               />
             );
           }
+          if (msg.type === 'file') {
+            return (
+              <FileBubble
+                key={msg.id}
+                name={msg.text}
+                time={msg.time}
+                styles={styles}
+                colors={colors}
+              />
+            );
+          }
           return msg.from === 'bot' ? (
             <BotTextBubble key={msg.id} text={msg.text} time={msg.time} styles={styles} />
           ) : (
@@ -193,14 +352,37 @@ export default function IA({ activeTab, onTabChange }) {
         )}
       </ScrollView>
 
+      {/* Attachment previews */}
+      {attachments.length > 0 && (
+        <View style={styles.attachmentsRow}>
+          {attachments.map((file) => (
+            <AttachmentChip
+              key={file.id}
+              file={file}
+              onRemove={handleRemoveAttachment}
+              colors={colors}
+              styles={styles}
+            />
+          ))}
+        </View>
+      )}
+
+      {/* Listening indicator */}
+      {isListening && (
+        <View style={styles.listeningRow}>
+          <View style={styles.listeningDot} />
+          <Text style={styles.listeningText}>À l'écoute... parlez maintenant</Text>
+        </View>
+      )}
+
       {/* Input dock */}
       <View style={styles.inputDock}>
-        <TouchableOpacity style={styles.micButton}>
-          <MaterialIcons name="mic" size={22} color={colors.onSurfaceVariant} />
+        <TouchableOpacity style={styles.attachButton} onPress={handleAttachPress}>
+          <MaterialIcons name="attach-file" size={22} color={colors.onSurfaceVariant} />
         </TouchableOpacity>
         <TextInput
           style={styles.input}
-          placeholder="Posez votre question..."
+          placeholder={isListening ? 'Parlez maintenant...' : 'Posez votre question...'}
           placeholderTextColor={colors.onSurfaceVariant}
           value={input}
           onChangeText={setInput}
@@ -208,6 +390,16 @@ export default function IA({ activeTab, onTabChange }) {
           returnKeyType="send"
           underlineColorAndroid="transparent"
         />
+        <TouchableOpacity
+          style={[styles.micButton, isListening && styles.micButtonActive]}
+          onPress={handleMicPress}
+        >
+          <MaterialIcons
+            name={isListening ? 'mic' : 'mic-none'}
+            size={22}
+            color={isListening ? colors.white : colors.onSurfaceVariant}
+          />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
           <MaterialIcons name="send" size={20} color={colors.white} />
         </TouchableOpacity>
@@ -299,6 +491,14 @@ const getStyles = (colors) => StyleSheet.create({
     marginRight: 4,
   },
 
+  // File message bubble (sent attachment)
+  fileBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    maxWidth: 220,
+  },
+
   // Checklist
   checklistIntro: {
     marginBottom: 12,
@@ -347,6 +547,51 @@ const getStyles = (colors) => StyleSheet.create({
     fontSize: 14,
   },
 
+  // Attachment previews (shown above the input dock)
+  attachmentsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  attachmentChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: 180,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: colors.surfaceContainer,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+  },
+  attachmentChipText: {
+    flexShrink: 1,
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+  },
+
+  // Listening indicator (shown above input dock while recording)
+  listeningRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  listeningDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ef4444',
+  },
+  listeningText: {
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+  },
+
   // Input dock
   inputDock: {
     flexDirection: 'row',
@@ -360,12 +605,22 @@ const getStyles = (colors) => StyleSheet.create({
     borderColor: colors.outlineVariant,
     borderRadius: 18,
   },
+  attachButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   micButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  micButtonActive: {
+    backgroundColor: '#ef4444',
   },
   input: {
     flex: 1,

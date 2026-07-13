@@ -14,6 +14,7 @@ import LanguageScreen from './Settings/Language';
 import HelpCenter from './Settings/HelpCenter';
 import AboutScreen from './Settings/About';
 import PasswordScreen from './Settings/Password';
+import CvBuilderWizard from './CvBuilder/CvBuilderWizard';
 import { useCandidateTheme } from '../../context/CandidateThemeContext'; // adjust relative path if needed
 
 // ---- Static profile data — replace with real data / props later ----
@@ -72,6 +73,7 @@ export default function Profile({
   const styles = getStyles(colors);
   const [showSettings, setShowSettings] = useState(false);
   const [settingsPage, setSettingsPage] = useState(initialSettingsPage);
+  const [showCvBuilder, setShowCvBuilder] = useState(false);
 
   useEffect(() => {
     setSettingsPage(initialSettingsPage);
@@ -85,6 +87,24 @@ export default function Profile({
   const handleCloseSettingsPage = () => {
     setSettingsPage(null);
   };
+
+  // CV Builder handlers
+  const openCvBuilder = () => setShowCvBuilder(true);
+  const closeCvBuilder = () => setShowCvBuilder(false);
+  const handleCvComplete = (formData) => {
+    console.log('CV generated with data:', formData);
+    setShowCvBuilder(false);
+    // TODO: navigate to preview or save
+  };
+
+  if (showCvBuilder) {
+    return (
+      <CvBuilderWizard
+        onExit={closeCvBuilder}
+        onComplete={handleCvComplete}
+      />
+    );
+  }
 
   if (settingsPage) {
     switch (settingsPage) {
@@ -193,22 +213,24 @@ export default function Profile({
           />
         </Card>
 
-        {/* CV Builder IA */}
-        <Card colors={colors}>
-          <View style={styles.cardHeaderRow}>
-            <Text style={styles.cardTitle}>CV Builder IA</Text>
-            <TouchableOpacity style={styles.pdfButton} onPress={onViewCvPdf}>
-              <MaterialIcons name="picture-as-pdf" size={16} color={colors.primary} />
-              <Text style={styles.pdfButtonText}>Voir PDF</Text>
-            </TouchableOpacity>
-          </View>
-          <InfoRow
-            icon="auto-awesome"
-            title="Générer un CV optimisé"
-            subtitle="Utilisez l'IA pour adapter votre CV aux offres d'emploi."
-            colors={colors}
-          />
-        </Card>
+        {/* CV Builder IA — card is tappable to open CV builder wizard */}
+        <TouchableOpacity activeOpacity={0.85} onPress={openCvBuilder}>
+          <Card colors={colors}>
+            <View style={styles.cardHeaderRow}>
+              <Text style={styles.cardTitle}>CV Builder IA</Text>
+              <TouchableOpacity style={styles.pdfButton} onPress={onViewCvPdf}>
+                <MaterialIcons name="picture-as-pdf" size={16} color={colors.primary} />
+                <Text style={styles.pdfButtonText}>Voir PDF</Text>
+              </TouchableOpacity>
+            </View>
+            <InfoRow
+              icon="auto-awesome"
+              title="Générer un CV optimisé"
+              subtitle="Utilisez l'IA pour adapter votre CV aux offres d'emploi."
+              colors={colors}
+            />
+          </Card>
+        </TouchableOpacity>
 
         {/* Compétences */}
         <View style={styles.skillsSection}>

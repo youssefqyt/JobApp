@@ -4,6 +4,7 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import JobCard from './component/CardJob';
 import BottomNavBar from './component/Navbar';
 import FilterModal from './component/FilterModal';
+import JobDetailsScreen from './component/CardJobDetails'; // adjust path if this file lives elsewhere
 import { useCandidateTheme } from '../context/CandidateThemeContext';
 
 // ---- Icons ----
@@ -43,11 +44,15 @@ const FilterIcon = ({ color }) => (
 );
 
 // ---- Job data (matching the HTML) ----
+// Each job now also carries the extra fields JobDetailsScreen needs
+// (description, missions, skills, etc.) so tapping a card can hand the
+// whole record straight to the details screen.
 const JOBS = [
   {
     initials: 'TH',
     title: 'Développeur Full Stack',
     company: 'Telnet Holding',
+    companyInitials: 'TH',
     verified: true,
     location: 'Lac II, Tunis',
     tags: [
@@ -55,22 +60,58 @@ const JOBS = [
       { label: 'Télétravail', variant: 'highlight' },
     ],
     postedAt: 'Il y a 2h',
+    contractType: 'CDI • Télétravail',
+    postedAgo: 'Publié il y a 2 heures',
+    applicantsCount: 85,
+    missingSkill: {
+      name: 'AWS / Cloud',
+      note: 'Niveau requis non atteint',
+      gapLabel: 'Lacune - 20%',
+      gapPercent: 20,
+    },
+    description:
+      "En tant que Développeur Full Stack chez Telnet Holding, vous participerez activement au cycle de vie complet de nos applications innovantes. Vous travaillerez sur des projets stimulants mêlant technologies web modernes et systèmes critiques.",
+    missions: [
+      'Conception et développement de nouvelles fonctionnalités (React/Node.js).',
+      'Maintenance évolutive et correction de bugs sur les plateformes existantes.',
+      'Collaboration étroite avec les équipes Design et Product Owner.',
+    ],
+    skills: ['React.js', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Agile Scrum'],
   },
   {
     initials: 'BI',
     title: 'Data Scientist',
     company: 'BIAT',
+    companyInitials: 'BI',
     verified: true,
     location: 'Les Berges du Lac',
     tags: [
       { label: 'CDI' },
     ],
     postedAt: 'Il y a 5h',
+    contractType: 'CDI',
+    postedAgo: 'Publié il y a 5 heures',
+    applicantsCount: 42,
+    missingSkill: {
+      name: 'Deep Learning',
+      note: 'Niveau requis non atteint',
+      gapLabel: 'Lacune - 15%',
+      gapPercent: 15,
+    },
+    description:
+      "En tant que Data Scientist chez BIAT, vous exploiterez les données pour développer des modèles prédictifs et accompagner les décisions stratégiques de la banque.",
+    missions: [
+      'Conception de modèles de machine learning pour la détection de fraude.',
+      'Analyse et nettoyage de larges volumes de données.',
+      'Présentation des résultats aux équipes métier.',
+    ],
+    skills: ['Python', 'SQL', 'Scikit-learn', 'TensorFlow', 'Power BI'],
   },
   {
     initials: 'VM',
     title: 'DevOps Engineer',
     company: 'Vermeg',
+    companyInitials: 'VM',
     verified: true,
     location: 'El Ghazala, Ariana',
     tags: [
@@ -78,6 +119,23 @@ const JOBS = [
       { label: 'Télétravail', variant: 'highlight' },
     ],
     postedAt: 'Il y a 1j',
+    contractType: 'CDD • Télétravail',
+    postedAgo: 'Publié il y a 1 jour',
+    applicantsCount: 63,
+    missingSkill: {
+      name: 'Kubernetes',
+      note: 'Niveau requis non atteint',
+      gapLabel: 'Lacune - 25%',
+      gapPercent: 25,
+    },
+    description:
+      "En tant que DevOps Engineer chez Vermeg, vous serez responsable de l'automatisation et de la fiabilité de nos pipelines de déploiement pour nos solutions logicielles financières.",
+    missions: [
+      'Mise en place et maintenance des pipelines CI/CD.',
+      'Gestion de l\'infrastructure cloud et conteneurisée.',
+      'Amélioration continue de la supervision et des alertes.',
+    ],
+    skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD'],
   },
 ];
 
@@ -85,6 +143,18 @@ export default function Home({ activeTab, onTabChange }) {
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  // Show the details screen full-screen in place of the list when a
+  // card has been tapped.
+  if (selectedJob) {
+    return (
+      <JobDetailsScreen
+        job={selectedJob}
+        onBack={() => setSelectedJob(null)}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -156,6 +226,7 @@ export default function Home({ activeTab, onTabChange }) {
               location={job.location}
               tags={job.tags}
               postedAt={job.postedAt}
+              onPress={() => setSelectedJob(job)}
             />
           ))}
         </View>

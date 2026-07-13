@@ -12,30 +12,19 @@ import {
   UIManager,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useCandidateTheme } from '../context/CandidateThemeContext'; // adjust relative path if needed
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const COLORS = {
-  primary: '#006c49',
-  onPrimary: '#ffffff',
-  surface: '#f8f9fa',
-  surfaceContainer: '#edeeef',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerHigh: '#e7e8e9',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  outlineVariant: '#bbcabf',
-  hintBg: 'rgba(209, 250, 229, 0.3)',
-  hintBorder: '#d1fae5',
-  hintText: '#064e3b',
-};
-
 const TOTAL_QUESTIONS = 5;
 const CURRENT_QUESTION = 3;
 
 export default function SimulationScreen() {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const [answer, setAnswer] = useState('');
   const [focused, setFocused] = useState(false);
   const [hintOpen, setHintOpen] = useState(false);
@@ -50,7 +39,7 @@ export default function SimulationScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.primary} />
+          <Ionicons name="arrow-back" size={22} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Préparation & Simulation</Text>
       </View>
@@ -92,7 +81,7 @@ export default function SimulationScreen() {
             <MaterialIcons
               name="smart-toy"
               size={20}
-              color={COLORS.onSurfaceVariant}
+              color={colors.onSurfaceVariant}
             />
           </View>
           <View style={styles.questionBubble}>
@@ -111,7 +100,7 @@ export default function SimulationScreen() {
             <TextInput
               style={styles.textArea}
               placeholder="Écrivez votre réponse ici..."
-              placeholderTextColor="rgba(60,74,66,0.4)"
+              placeholderTextColor={colors.outline}
               multiline
               value={answer}
               onChangeText={setAnswer}
@@ -119,7 +108,7 @@ export default function SimulationScreen() {
               onBlur={() => setFocused(false)}
             />
             <TouchableOpacity style={styles.micButton}>
-              <Ionicons name="mic" size={20} color={COLORS.onSurfaceVariant} />
+              <Ionicons name="mic" size={20} color={colors.onSurfaceVariant} />
             </TouchableOpacity>
           </View>
 
@@ -130,7 +119,7 @@ export default function SimulationScreen() {
             </Text>
             <TouchableOpacity style={styles.submitButton} activeOpacity={0.85}>
               <Text style={styles.submitButtonText}>Soumettre la réponse</Text>
-              <Ionicons name="arrow-forward" size={16} color={COLORS.onPrimary} />
+              <Ionicons name="arrow-forward" size={16} color={colors.onPrimary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -139,13 +128,13 @@ export default function SimulationScreen() {
         <View style={styles.hintCard}>
           <TouchableOpacity style={styles.hintHeader} onPress={toggleHint}>
             <View style={styles.hintHeaderLeft}>
-              <MaterialIcons name="lightbulb" size={20} color={COLORS.hintText} />
+              <MaterialIcons name="lightbulb" size={20} color={colors.onSecondaryContainer} />
               <Text style={styles.hintLabel}>Astuce de l'IA</Text>
             </View>
             <Ionicons
               name={hintOpen ? 'chevron-up' : 'chevron-down'}
               size={20}
-              color={COLORS.hintText}
+              color={colors.onSecondaryContainer}
             />
           </TouchableOpacity>
           {hintOpen && (
@@ -164,10 +153,10 @@ export default function SimulationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -175,8 +164,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surface,
+    borderBottomColor: colors.outlineVariant,
+    backgroundColor: colors.background,
   },
   backButton: {
     padding: 6,
@@ -186,7 +175,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     letterSpacing: -0.2,
   },
   scroll: {
@@ -198,9 +187,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
@@ -212,7 +201,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   progressPill: {
-    backgroundColor: COLORS.surfaceContainer,
+    backgroundColor: colors.surfaceContainer,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 5,
@@ -220,7 +209,7 @@ const styles = StyleSheet.create({
   progressPillText: {
     fontSize: 12,
     fontWeight: '500',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   dotsRow: {
     flexDirection: 'row',
@@ -233,15 +222,15 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   dotActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   dotInactive: {
-    backgroundColor: COLORS.surfaceContainer,
+    backgroundColor: colors.surfaceContainer,
   },
   roleLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 4,
@@ -249,7 +238,7 @@ const styles = StyleSheet.create({
   roleTitle: {
     fontSize: 24,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     letterSpacing: -0.3,
   },
   questionRow: {
@@ -262,15 +251,15 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    backgroundColor: colors.surfaceContainerHigh,
     alignItems: 'center',
     justifyContent: 'center',
   },
   questionBubble: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 16,
     borderTopLeftRadius: 0,
     padding: 20,
@@ -283,24 +272,24 @@ const styles = StyleSheet.create({
   questionText: {
     fontSize: 18,
     lineHeight: 28,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   answerCard: {
     padding: 12,
   },
   answerCardFocused: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   textAreaWrapper: {
     position: 'relative',
   },
   textArea: {
     minHeight: 160,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     textAlignVertical: 'top',
   },
   micButton: {
@@ -309,7 +298,7 @@ const styles = StyleSheet.create({
     right: 12,
     padding: 10,
     borderRadius: 999,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   answerFooter: {
     marginTop: 16,
@@ -319,10 +308,10 @@ const styles = StyleSheet.create({
   footerNote: {
     fontSize: 12,
     fontStyle: 'italic',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   submitButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     flexDirection: 'row',
@@ -331,14 +320,19 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   submitButtonText: {
-    color: COLORS.onPrimary,
+    color: colors.onPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
+  // Was a bespoke amber/mint palette (hintBg/hintBorder/hintText) that
+  // closely duplicated secondaryContainer/onSecondaryContainer already
+  // used elsewhere for positive/success states — remapped to those
+  // theme tokens so this card inverts correctly in dark mode instead
+  // of staying a fixed light-mint tint.
   hintCard: {
     borderWidth: 1,
-    borderColor: COLORS.hintBorder,
-    backgroundColor: COLORS.hintBg,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.secondaryContainer,
     borderRadius: 12,
     overflow: 'hidden',
   },
@@ -356,7 +350,7 @@ const styles = StyleSheet.create({
   hintLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.hintText,
+    color: colors.onSecondaryContainer,
   },
   hintContent: {
     paddingHorizontal: 16,
@@ -365,6 +359,6 @@ const styles = StyleSheet.create({
   hintText: {
     fontSize: 14,
     lineHeight: 20,
-    color: COLORS.hintText,
+    color: colors.onSecondaryContainer,
   },
 });

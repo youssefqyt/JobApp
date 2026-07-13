@@ -1,19 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useCompanyTheme } from '../../context/EnterpriseThemeContext';
 
-// ---- Colors (from your Tailwind theme) ----
-const COLORS = {
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  onSecondaryContainer: '#306d58',
-  secondaryContainer: '#adedd3',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-};
-
-const STATUS_STYLES = {
-  Active: { bg: COLORS.secondaryContainer, text: COLORS.onSecondaryContainer },
+// "Pausé" and "Fermé" aren't part of the enterprise theme (no tokens
+// defined there yet for paused/closed states), so they stay static
+// rather than shifting with dark mode. "Active" does use the theme
+// via colors.secondaryContainer / colors.onSecondaryContainer below.
+const STATIC_STATUS_STYLES = {
   Pausé: { bg: '#e1e3e4', text: '#3c4a42' },
   Fermé: { bg: '#ffdad6', text: '#ba1a1a' },
 };
@@ -26,7 +20,7 @@ const STATUS_STYLES = {
  *
  * Props:
  * - title: string (e.g. "Développeur Full-Stack")
- * - status: string, one of the keys in STATUS_STYLES (default "Active")
+ * - status: string, one of "Active" | "Pausé" | "Fermé" (default "Active")
  * - publishedLabel: string (e.g. "Publié il y a 2 jours")
  * - views: number
  * - applications: number
@@ -40,8 +34,14 @@ export default function JobPostingCard({
   applications,
   onPress,
 }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
   const Wrapper = onPress ? TouchableOpacity : View;
-  const statusStyle = STATUS_STYLES[status] || STATUS_STYLES.Active;
+
+  const statusStyle =
+    status === 'Active'
+      ? { bg: colors.secondaryContainer, text: colors.onSecondaryContainer }
+      : STATIC_STATUS_STYLES[status] || { bg: colors.secondaryContainer, text: colors.onSecondaryContainer };
 
   return (
     <Wrapper style={styles.card} activeOpacity={0.8} onPress={onPress}>
@@ -56,11 +56,11 @@ export default function JobPostingCard({
 
       <View style={styles.statsRow}>
         <View style={styles.statItem}>
-          <MaterialIcons name="visibility" size={16} color={COLORS.onSurfaceVariant} />
+          <MaterialIcons name="visibility" size={16} color={colors.onSurfaceVariant} />
           <Text style={styles.statText}>{views} vues</Text>
         </View>
         <View style={styles.statItem}>
-          <MaterialIcons name="groups" size={16} color={COLORS.onSurfaceVariant} />
+          <MaterialIcons name="groups" size={16} color={colors.onSurfaceVariant} />
           <Text style={styles.statText}>{applications} candidatures</Text>
         </View>
       </View>
@@ -68,11 +68,11 @@ export default function JobPostingCard({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   card: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   statusPill: {
     paddingHorizontal: 12,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   publishedLabel: {
     fontSize: 13,
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
     marginBottom: 14,
   },
   statsRow: {
@@ -120,6 +120,6 @@ const styles = StyleSheet.create({
   statText: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
 });

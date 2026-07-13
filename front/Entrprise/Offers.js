@@ -8,21 +8,13 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useCompanyTheme } from '../context/EnterpriseThemeContext';
 
-const COLORS = {
-  emerald500: '#10b981',
-  emerald600: '#059669',
-  emerald700: '#047857',
-  emeraldBg: '#ecfdf5',
-  amberBg: '#fffbeb',
-  amber700: '#b45309',
-  gray900: '#111827',
-  gray600: '#4b5563',
-  gray500: '#6b7280',
-  gray400: '#9ca3af',
-  gray200: '#e5e7eb',
-  gray100: '#f3f4f6',
-  white: '#ffffff',
+// "Draft" status badge isn't part of the enterprise theme (no amber token
+// defined there yet), so it stays static rather than shifting with dark mode.
+const STATUS_DRAFT = {
+  bg: '#fffbeb',
+  text: '#b45309',
 };
 
 const TABS = ['Pipeline ATS', 'Toutes les offres', 'Brouillons'];
@@ -66,6 +58,8 @@ const JOB_OFFERS = [
 ];
 
 export default function OffresATSScreen({ onAddOffer }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -164,11 +158,11 @@ export default function OffresATSScreen({ onAddOffer }) {
                 </View>
                 <View style={styles.jobStats}>
                   <View style={styles.jobStatItem}>
-                    <MaterialIcons name="visibility" size={16} color={COLORS.gray500} />
+                    <MaterialIcons name="visibility" size={16} color={colors.onSurfaceVariant} />
                     <Text style={styles.jobStatText}>{job.views}</Text>
                   </View>
                   <View style={styles.jobStatItem}>
-                    <MaterialIcons name="group" size={16} color={COLORS.gray500} />
+                    <MaterialIcons name="group" size={16} color={colors.onSurfaceVariant} />
                     <Text style={styles.jobStatText}>{job.applicants}</Text>
                   </View>
                 </View>
@@ -184,41 +178,41 @@ export default function OffresATSScreen({ onAddOffer }) {
         accessibilityLabel="Add Offer"
         onPress={onAddOffer}
       >
-        <MaterialIcons name="add" size={24} color={COLORS.emerald700} />
+        <MaterialIcons name="add" size={24} color={colors.onPrimaryContainer} />
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   header: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 8,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.emerald600,
+    color: colors.primary,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: COLORS.gray500,
+    color: colors.onSurfaceVariant,
     marginTop: 4,
   },
   headerSubtitleBold: {
     fontWeight: '600',
-    color: COLORS.gray600,
+    color: colors.onSurfaceVariant,
   },
   tabsContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
-    backgroundColor: COLORS.white,
+    borderBottomColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLowest,
     paddingLeft: 16,
   },
   tabItem: {
@@ -227,15 +221,15 @@ const styles = StyleSheet.create({
   },
   tabItemActive: {
     borderBottomWidth: 2,
-    borderBottomColor: COLORS.emerald500,
+    borderBottomColor: colors.primaryContainer,
   },
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.gray400,
+    color: colors.outline,
   },
   tabTextActive: {
-    color: COLORS.emerald600,
+    color: colors.primary,
   },
   mainContent: {
     flex: 1,
@@ -251,7 +245,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.gray400,
+    color: colors.outline,
     letterSpacing: 0.5,
     marginBottom: 16,
   },
@@ -268,10 +262,10 @@ const styles = StyleSheet.create({
   pipelineColumnTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.gray600,
+    color: colors.onSurfaceVariant,
   },
   countBadge: {
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.outlineVariant,
     borderRadius: 999,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -279,7 +273,7 @@ const styles = StyleSheet.create({
   countBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.gray600,
+    color: colors.onSurfaceVariant,
   },
   pipelineCards: {
     gap: 12,
@@ -288,9 +282,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.gray200,
+    borderColor: colors.outlineVariant,
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -299,35 +293,35 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.emerald600,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   candidateAvatarText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 10,
     fontWeight: '700',
   },
   candidateName: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.gray900,
+    color: colors.onSurface,
   },
   candidateMatch: {
     fontSize: 10,
     fontWeight: '600',
-    color: COLORS.emerald600,
+    color: colors.primary,
   },
   candidateMatchMuted: {
-    color: COLORS.gray400,
+    color: colors.outline,
   },
   jobsList: {
     gap: 12,
   },
   jobCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.gray200,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -340,11 +334,11 @@ const styles = StyleSheet.create({
   jobTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.gray900,
+    color: colors.onSurface,
   },
   jobLocation: {
     fontSize: 12,
-    color: COLORS.gray500,
+    color: colors.onSurfaceVariant,
     marginTop: 2,
   },
   statusBadge: {
@@ -353,20 +347,20 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   statusActive: {
-    backgroundColor: COLORS.emeraldBg,
+    backgroundColor: colors.primaryTintFaint,
   },
   statusDraft: {
-    backgroundColor: COLORS.amberBg,
+    backgroundColor: STATUS_DRAFT.bg,
   },
   statusBadgeText: {
     fontSize: 10,
     fontWeight: '700',
   },
   statusActiveText: {
-    color: COLORS.emerald700,
+    color: colors.primary,
   },
   statusDraftText: {
-    color: COLORS.amber700,
+    color: STATUS_DRAFT.text,
   },
   jobStats: {
     flexDirection: 'row',
@@ -381,7 +375,7 @@ const styles = StyleSheet.create({
   jobStatText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.gray500,
+    color: colors.onSurfaceVariant,
   },
   fab: {
     position: 'absolute',
@@ -390,7 +384,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 18,
-    backgroundColor: COLORS.emerald500,
+    backgroundColor: colors.primaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

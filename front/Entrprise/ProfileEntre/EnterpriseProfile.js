@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,30 +9,60 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import SettingsSheetEnt from './Settings/SettingSheetEnt';
+import LanguageEnt from './Settings/LanguageEnt';
+import HelpCenterEnt from './Settings/HelpCenterEnt';
+import AboutEnt from './Settings/AboutEnt';
+import { useCompanyTheme } from '../../context/EnterpriseThemeContext';
 
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onPrimary: '#ffffff',
-  onPrimaryContainer: '#00422b',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-  surface: '#f8f9fa',
-  surfaceContainerLow: '#f3f4f5',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  outlineVariant: '#bbcabf',
-  white: '#ffffff',
-  error: '#d14343',
-};
+export default function CompanyProfileScreen({ onLogout, initialSettingsPage = null }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const [settingsPage, setSettingsPage] = useState(initialSettingsPage);
 
-export default function CompanyProfileScreen({ onLogout }) {
+  useEffect(() => {
+    setSettingsPage(initialSettingsPage);
+  }, [initialSettingsPage]);
+
+  const handleOpenSettingsPage = (page) => {
+    setSettingsPage(page);
+    setSettingsVisible(false);
+  };
+
+  const handleCloseSettingsPage = () => {
+    setSettingsPage(null);
+  };
+
+  if (settingsPage) {
+    switch (settingsPage) {
+      case 'language':
+        return <LanguageEnt navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'help':
+        return <HelpCenterEnt navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'about':
+        return <AboutEnt navigation={{ goBack: handleCloseSettingsPage }} />;
+      default:
+        return null;
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>Profile</Text>
-        <View style={styles.avatarSmall}>
-          <Text style={styles.avatarSmallText}>HR</Text>
+        <View style={styles.topBarRight}>
+           <View style={styles.avatarSmall}>
+            <Text style={styles.avatarSmallText}>HR</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.settingsIconButton}
+            activeOpacity={0.7}
+            onPress={() => setSettingsVisible(true)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <MaterialIcons name="settings" size={22} color={colors.onSurfaceVariant} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -59,14 +89,14 @@ export default function CompanyProfileScreen({ onLogout }) {
           <View style={styles.nameRow}>
             <Text style={styles.companyName}>Orrange Tunis</Text>
             <View style={styles.verifiedBadge}>
-              <MaterialIcons name="verified" size={12} color={COLORS.onSecondaryContainer} />
+              <MaterialIcons name="verified" size={12} color={colors.onSecondaryContainer} />
               <Text style={styles.verifiedText}>Verified</Text>
             </View>
           </View>
           <Text style={styles.tagline}>Pioneering Tech Recruitment Solutions in North Africa</Text>
 
           <TouchableOpacity style={styles.editButton}>
-            <MaterialIcons name="edit" size={18} color={COLORS.onPrimary} />
+            <MaterialIcons name="edit" size={18} color={colors.onPrimary} />
             <Text style={styles.editButtonText}>Edit Public Profile</Text>
           </TouchableOpacity>
         </View>
@@ -74,7 +104,7 @@ export default function CompanyProfileScreen({ onLogout }) {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.cardHeaderLeft}>
-              <MaterialIcons name="info" size={20} color={COLORS.primary} />
+              <MaterialIcons name="info" size={20} color={colors.primary} />
               <Text style={styles.cardTitle}>Company Details</Text>
             </View>
             <TouchableOpacity>
@@ -83,11 +113,11 @@ export default function CompanyProfileScreen({ onLogout }) {
           </View>
 
           <View style={styles.detailsGrid}>
-            <DetailField label="Industry" value="Information Technology & Services" />
-            <DetailField label="Company Size" value="250 - 500 Employees" />
-            <DetailField label="Headquarters" value="Les Berges du Lac, Tunis" />
-            <DetailField label="Founded" value="March 2018" />
-            <DetailField label="Website URL" value="https://www.tunwork.tn" isLink />
+            <DetailField label="Industry" value="Information Technology & Services" styles={styles} />
+            <DetailField label="Company Size" value="250 - 500 Employees" styles={styles} />
+            <DetailField label="Headquarters" value="Les Berges du Lac, Tunis" styles={styles} />
+            <DetailField label="Founded" value="March 2018" styles={styles} />
+            <DetailField label="Website URL" value="https://www.tunwork.tn" isLink styles={styles} />
           </View>
 
           <View style={styles.descriptionBox}>
@@ -105,7 +135,7 @@ export default function CompanyProfileScreen({ onLogout }) {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.cardHeaderLeft}>
-              <MaterialIcons name="card-membership" size={20} color={COLORS.primary} />
+              <MaterialIcons name="card-membership" size={20} color={colors.primary} />
               <Text style={styles.cardTitle}>Plan</Text>
             </View>
           </View>
@@ -116,9 +146,9 @@ export default function CompanyProfileScreen({ onLogout }) {
           </View>
 
           <View style={styles.planFeatures}>
-            <PlanFeature text="Unlimited ATS Postings" />
-            <PlanFeature text="AI Candidate Screening" />
-            <PlanFeature text="Advanced Analytics Export" />
+            <PlanFeature text="Unlimited ATS Postings" colors={colors} styles={styles} />
+            <PlanFeature text="AI Candidate Screening" colors={colors} styles={styles} />
+            <PlanFeature text="Advanced Analytics Export" colors={colors} styles={styles} />
           </View>
 
           <TouchableOpacity style={styles.manageButton}>
@@ -132,13 +162,13 @@ export default function CompanyProfileScreen({ onLogout }) {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.cardHeaderLeft}>
-              <MaterialIcons name="settings" size={20} color={COLORS.primary} />
+              <MaterialIcons name="settings" size={20} color={colors.primary} />
               <Text style={styles.cardTitle}>Paramètres</Text>
             </View>
           </View>
 
           <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-            <MaterialIcons name="logout" size={20} color={COLORS.error} />
+            <MaterialIcons name="logout" size={20} color={colors.error} />
             <Text style={styles.logoutText}>Se déconnecter</Text>
           </TouchableOpacity>
         </View>
@@ -147,11 +177,29 @@ export default function CompanyProfileScreen({ onLogout }) {
           <Text style={styles.footerText}>© 2024 TunWork. All rights reserved.</Text>
         </View>
       </ScrollView>
+
+      <SettingsSheetEnt
+        visible={settingsVisible}
+        onClose={() => setSettingsVisible(false)}
+        onLogout={() => {
+          setSettingsVisible(false);
+          onLogout && onLogout();
+        }}
+        onCompanyDetailsPress={() => {}}
+        onTeamMembersPress={() => {}}
+        onBillingPress={() => {}}
+        onLanguagePress={() => handleOpenSettingsPage('language')}
+        onHelpPress={() => handleOpenSettingsPage('help')}
+        onContactPress={() => handleOpenSettingsPage('help')}
+        onPrivacyPolicyPress={() => handleOpenSettingsPage('about')}
+        onAboutPress={() => handleOpenSettingsPage('about')}
+        onSecurityPress={() => handleOpenSettingsPage('help')}
+      />
     </SafeAreaView>
   );
 }
 
-function DetailField({ label, value, isLink }) {
+function DetailField({ label, value, isLink, styles }) {
   return (
     <View style={styles.detailField}>
       <Text style={styles.detailLabel}>{label}</Text>
@@ -160,19 +208,19 @@ function DetailField({ label, value, isLink }) {
   );
 }
 
-function PlanFeature({ text }) {
+function PlanFeature({ text, colors, styles }) {
   return (
     <View style={styles.planFeatureRow}>
-      <MaterialIcons name="check-circle" size={18} color={COLORS.primary} />
+      <MaterialIcons name="check-circle" size={18} color={colors.primary} />
       <Text style={styles.planFeatureText}>{text}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   topBar: {
     flexDirection: 'row',
@@ -180,25 +228,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
+    borderBottomColor: colors.outlineVariant,
   },
   topBarTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
+  },
+  topBarRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  settingsIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceContainerLow,
   },
   avatarSmall: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarSmallText: {
-    color: COLORS.onPrimaryContainer,
+    color: colors.onPrimaryContainer,
     fontWeight: '700',
     fontSize: 12,
   },
@@ -226,8 +287,8 @@ const styles = StyleSheet.create({
     height: 96,
     borderRadius: 16,
     borderWidth: 4,
-    borderColor: COLORS.surface,
-    backgroundColor: COLORS.white,
+    borderColor: colors.background,
+    backgroundColor: colors.white,
     overflow: 'hidden',
   },
   logoImage: {
@@ -243,13 +304,13 @@ const styles = StyleSheet.create({
   companyName: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 999,
@@ -257,19 +318,19 @@ const styles = StyleSheet.create({
   verifiedText: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
     textTransform: 'uppercase',
   },
   tagline: {
     marginTop: 4,
     fontSize: 14,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignSelf: 'flex-start',
     paddingHorizontal: 20,
     paddingVertical: 10,
@@ -277,15 +338,15 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   editButtonText: {
-    color: COLORS.onPrimary,
+    color: colors.onPrimary,
     fontWeight: '600',
     fontSize: 14,
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.surfaceContainerLowest,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     marginHorizontal: 16,
     marginTop: 24,
     padding: 20,
@@ -295,7 +356,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
+    borderBottomColor: colors.outlineVariant,
     paddingBottom: 12,
     marginBottom: 16,
   },
@@ -307,10 +368,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   updateLink: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -319,23 +380,23 @@ const styles = StyleSheet.create({
   },
   detailField: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
+    borderBottomColor: colors.outlineVariant,
     paddingBottom: 8,
   },
   detailLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   detailValue: {
     fontSize: 16,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   detailValueLink: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   descriptionBox: {
     marginTop: 16,
@@ -343,41 +404,41 @@ const styles = StyleSheet.create({
   descriptionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 8,
   },
   descriptionContent: {
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     padding: 16,
   },
   descriptionText: {
     fontSize: 14,
     lineHeight: 20,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   planBox: {
     alignItems: 'center',
     paddingVertical: 16,
-    backgroundColor: 'rgba(0,108,73,0.05)',
+    backgroundColor: colors.primaryTintFaint,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(0,108,73,0.1)',
+    borderColor: colors.primaryTintMedium,
     marginBottom: 20,
   },
   planName: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 4,
   },
   planBilling: {
     fontSize: 13,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   planFeatures: {
     gap: 12,
@@ -390,17 +451,17 @@ const styles = StyleSheet.create({
   },
   planFeatureText: {
     fontSize: 14,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   manageButton: {
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
   },
   manageButtonText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -409,7 +470,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     fontSize: 12,
   },
   logoutButton: {
@@ -421,7 +482,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   logoutText: {
-    color: COLORS.error,
+    color: colors.error,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -431,6 +492,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
 });

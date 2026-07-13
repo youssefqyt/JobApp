@@ -10,21 +10,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import JobPostingCard from './componentEnt/Jobpostingcard';
 import CandidateMatchCard from './componentEnt/Candidatematchcard';
-
-// ---- Colors (from your Tailwind theme) ----
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onPrimaryContainer: '#00422b',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surface: '#f8f9fa',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerHigh: '#e7e8e9',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-  white: '#ffffff',
-};
+import { useCompanyTheme } from '../context/EnterpriseThemeContext';
 
 // ---- Data ----
 
@@ -61,11 +47,14 @@ const RECOMMENDED_CANDIDATES = [
 ];
 
 // ---- Sub-components ----
+// Each takes `colors` + `styles` as props so they re-render correctly
+// when the theme (light/dark) changes, same pattern as OffresATSScreen
+// and AIAssistant.
 
-function StatCard({ label, value, suffix, trend, trendType }) {
+function StatCard({ label, value, suffix, trend, trendType, colors, styles }) {
   const trendIcon =
     trendType === 'up' ? 'trending-up' : trendType === 'flat' ? 'remove' : null;
-  const trendColor = trendType === 'flat' ? COLORS.onSurfaceVariant : COLORS.primaryContainer;
+  const trendColor = trendType === 'flat' ? colors.onSurfaceVariant : colors.primaryContainer;
 
   return (
     <View style={styles.statCard}>
@@ -80,9 +69,9 @@ function StatCard({ label, value, suffix, trend, trendType }) {
         {trendType === 'rating' ? (
           <View style={styles.starsRow}>
             {[0, 1, 2, 3].map((i) => (
-              <MaterialIcons key={i} name="star" size={14} color={COLORS.primaryContainer} />
+              <MaterialIcons key={i} name="star" size={14} color={colors.primaryContainer} />
             ))}
-            <MaterialIcons name="star-half" size={14} color={COLORS.primaryContainer} />
+            <MaterialIcons name="star-half" size={14} color={colors.primaryContainer} />
           </View>
         ) : (
           trendIcon && <MaterialIcons name={trendIcon} size={14} color={trendColor} />
@@ -93,7 +82,7 @@ function StatCard({ label, value, suffix, trend, trendType }) {
   );
 }
 
-function SectionHeader({ title, onSeeAll }) {
+function SectionHeader({ title, onSeeAll, styles }) {
   return (
     <View style={styles.sectionHeaderRow}>
       <Text style={styles.sectionHeaderTitle}>{title}</Text>
@@ -107,6 +96,8 @@ function SectionHeader({ title, onSeeAll }) {
 // ---- Main screen ----
 
 export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOpenCandidate }) {
+  const { colors } = useCompanyTheme();
+  const styles = getStyles(colors);
   const [query, setQuery] = useState('');
 
   return (
@@ -119,7 +110,7 @@ export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOp
         </Text>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.bellButton} activeOpacity={0.7}>
-            <MaterialIcons name="notifications" size={22} color={COLORS.onSurfaceVariant} />
+            <MaterialIcons name="notifications" size={22} color={colors.onSurfaceVariant} />
           </TouchableOpacity>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>RH</Text>
@@ -134,27 +125,27 @@ export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOp
       >
         {/* Search */}
         <View style={styles.searchBar}>
-          <MaterialIcons name="search" size={20} color={COLORS.onSurfaceVariant} />
+          <MaterialIcons name="search" size={20} color={colors.onSurfaceVariant} />
           <TextInput
             style={styles.searchInput}
             value={query}
             onChangeText={setQuery}
             onSubmitEditing={() => onSearch && onSearch(query)}
             placeholder="Rechercher un candidat..."
-            placeholderTextColor={COLORS.onSurfaceVariant}
+            placeholderTextColor={colors.onSurfaceVariant}
           />
         </View>
 
         {/* Stats bento grid */}
         <View style={styles.statsGrid}>
           {STATS.map((stat) => (
-            <StatCard key={stat.label} {...stat} />
+            <StatCard key={stat.label} {...stat} colors={colors} styles={styles} />
           ))}
         </View>
 
         {/* Last job offers */}
         <View style={styles.section}>
-          <SectionHeader title="DERNIÈRES OFFRES PUBLIÉES" />
+          <SectionHeader title="DERNIÈRES OFFRES PUBLIÉES" styles={styles} />
           <View style={styles.jobList}>
             {JOB_OFFERS.map((job) => (
               <JobPostingCard
@@ -168,7 +159,7 @@ export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOp
 
         {/* AI recommended profiles */}
         <View style={styles.section}>
-          <SectionHeader title="PROFILS RECOMMANDÉS PAR L'IA" />
+          <SectionHeader title="PROFILS RECOMMANDÉS PAR L'IA" styles={styles} />
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -187,16 +178,16 @@ export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOp
 
       {/* FAB for adding a job */}
       <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={onAddJob}>
-        <MaterialIcons name="add" size={24} color={COLORS.onPrimaryContainer} />
+        <MaterialIcons name="add" size={24} color={colors.onPrimaryContainer} />
       </TouchableOpacity>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   header: {
     height: 56,
@@ -205,18 +196,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surface,
+    borderBottomColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   logo: {
     fontSize: 22,
     fontWeight: '700',
   },
   logoTun: {
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   logoWork: {
-    color: COLORS.primaryContainer,
+    color: colors.primaryContainer,
   },
   headerRight: {
     flexDirection: 'row',
@@ -235,15 +226,15 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerHigh,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   scroll: {
     flex: 1,
@@ -260,9 +251,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     paddingHorizontal: 14,
   },
@@ -270,10 +261,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 15,
-    color: COLORS.onSurface,
-    backgroundColor: COLORS.surface,
+    color: colors.onSurface,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 0,
     borderColor: 'transparent',
+    // Removes the default browser focus rectangle on RN Web; no-op
+    // on native iOS/Android so it's safe to keep everywhere.
     outlineStyle: 'none',
     outlineWidth: 0,
     outlineColor: 'transparent',
@@ -289,9 +282,9 @@ const styles = StyleSheet.create({
   statCard: {
     width: '48%',
     minHeight: 110,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 14,
     justifyContent: 'space-between',
@@ -299,7 +292,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 4,
   },
   statValueRow: {
@@ -310,11 +303,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   statSuffix: {
     fontSize: 13,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 2,
   },
   statTrendRow: {
@@ -344,13 +337,13 @@ const styles = StyleSheet.create({
   sectionHeaderTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     letterSpacing: 1,
   },
   seeAll: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.primaryContainer,
+    color: colors.primaryContainer,
   },
   jobList: {
     gap: 12,
@@ -368,7 +361,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 18,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

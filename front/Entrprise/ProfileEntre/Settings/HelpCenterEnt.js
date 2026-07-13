@@ -11,7 +11,7 @@ import {
   UIManager,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
+import { useCompanyTheme } from '../../../context/EnterpriseThemeContext';
 
 if (
   Platform.OS === 'android' &&
@@ -90,7 +90,7 @@ function FaqItem({ question, answer, expanded, onToggle, colors, styles }) {
 }
 
 export default function HelpCenter({ navigation }) {
-  const { colors } = useCandidateTheme();
+  const { colors } = useCompanyTheme();
   const styles = getStyles(colors);
 
   const [search, setSearch] = useState('');

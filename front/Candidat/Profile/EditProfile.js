@@ -18,26 +18,7 @@ import * as DocumentPicker from 'expo-document-picker';
 // If you're not using Expo:
 // `npm install react-native-vector-icons react-native-document-picker`
 // and swap the imports above accordingly.
-
-// ---- Theme (from your design tokens) ----
-const colors = {
-  surface: '#f8f9fa',
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onPrimary: '#ffffff',
-  secondary: '#2b6954',
-  secondaryContainer: '#adedd3',
-  onSecondaryContainer: '#306d58',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  outline: '#6c7a71',
-  outlineVariant: '#bbcabf',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerHigh: '#e7e8e9',
-  surfaceContainerHighest: '#e1e3e4',
-  error: '#ba1a1a',
-};
+import { useCandidateTheme } from '../../context/CandidateThemeContext'; // adjust relative path if needed
 
 const JOB_TYPES = ['Plein-temps', 'Freelance', 'Remote', 'CDD / Projet'];
 const MAX_CV_SIZE = 5 * 1024 * 1024; // 5MB
@@ -50,6 +31,9 @@ function formatBytes(bytes) {
 }
 
 export default function EditProfileScreen({ navigation }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const [fullName, setFullName] = useState('Ahmed Mansour');
   const [jobTitle, setJobTitle] = useState('Senior UX Designer');
   const [location, setLocation] = useState('Tunis, Tunisie');
@@ -134,7 +118,7 @@ export default function EditProfileScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -261,7 +245,7 @@ export default function EditProfileScreen({ navigation }) {
               value={available}
               onValueChange={setAvailable}
               trackColor={{ false: colors.outlineVariant, true: colors.primary }}
-              thumbColor="#ffffff"
+              thumbColor={colors.white}
             />
           </View>
 
@@ -446,10 +430,10 @@ export default function EditProfileScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   header: {
     height: 64,
@@ -459,7 +443,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   iconButton: {
     width: 40,
@@ -486,7 +470,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     // Match the last section's background so the extra bottom padding
-    // doesn't show up as a mismatched grey strip under the white card.
+    // doesn't show up as a mismatched strip under the card.
     backgroundColor: colors.surfaceContainerLowest,
   },
   section: {
@@ -542,7 +526,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: colors.surface,
+    borderColor: colors.surfaceContainerLowest,
   },
   avatarLabel: {
     marginTop: 12,
@@ -595,18 +579,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.onSurface,
   },
+  // Was a hardcoded rgba(173, 237, 211, x) tint derived from the
+  // light-mode secondaryContainer hex — didn't adapt to dark mode.
+  // Now reuses the same secondaryContainer/outlineVariant pattern as
+  // the chip/chipSelected styles below, so it inverts correctly.
   availabilityCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: 'rgba(173, 237, 211, 0.1)',
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: 'rgba(173, 237, 211, 0.3)',
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     marginBottom: 24,
   },
   availabilityCardActive: {
+    backgroundColor: colors.secondaryContainer,
     borderColor: colors.primary,
   },
   availabilityLeft: {
