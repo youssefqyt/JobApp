@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -61,10 +61,25 @@ export default function SettingsSheet({
   onLogout,
   appVersion = '1.0.0',
   language = 'Français',
+  focusNotifications = false,
 }) {
   const { colors, darkMode, toggleTheme } = useCandidateTheme();
   const styles = getStyles(colors);
   const [pushNotifications, setPushNotifications] = useState(true);
+  const scrollRef = useRef(null);
+  const notificationsY = useRef(0);
+
+  // When focusNotifications becomes true, scroll the Notifications row
+  // into view so the label is prominent.
+  useEffect(() => {
+    if (focusNotifications && notificationsY.current > 0) {
+      // Small delay to let the sheet animate in before scrolling
+      const timer = setTimeout(() => {
+        scrollRef.current?.scrollTo({ y: notificationsY.current - 40, animated: true });
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [focusNotifications]);
 
   return (
     <Modal
@@ -92,6 +107,7 @@ export default function SettingsSheet({
           </View>
 
           <ScrollView
+            ref={scrollRef}
             style={styles.scroll}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -118,7 +134,14 @@ export default function SettingsSheet({
             </View>
 
             {/* NOTIFICATIONS */}
-            <View style={styles.section}>
+            <View
+              style={styles.section}
+              onLayout={(e) => {
+                if (notificationsY.current === 0) {
+                  notificationsY.current = e.nativeEvent.layout.y;
+                }
+              }}
+            >
               <SectionLabel>NOTIFICATIONS</SectionLabel>
               <SettingsRow
                 icon="notifications"
@@ -217,7 +240,7 @@ const getStyles = (colors) => StyleSheet.create({
   overlayContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'transparent',
   },
   overlayTouchable: {
     flex: 1,

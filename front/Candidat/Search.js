@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import JobCard from './component/CardJob';
 import BottomNavBar from './component/Navbar';
 import { useCandidateTheme } from '../context/CandidateThemeContext'; // adjust relative path
 
@@ -19,6 +20,94 @@ const SPECIALTIES = [
   { key: 'education', label: 'Éducation', icon: 'school' },
   { key: 'finance', label: 'Finance', icon: 'payments' },
   { key: 'it', label: 'IT & Tech', icon: 'terminal' },
+  { key: 'marketing', label: 'Marketing & Communication', icon: 'campaign' },
+  { key: 'law', label: 'Droit & Juridique', icon: 'gavel' },
+  { key: 'commerce', label: 'Commerce & Vente', icon: 'shopping-cart' },
+  { key: 'architecture', label: 'Architecture & Design', icon: 'draw' },
+  { key: 'accounting', label: 'Comptabilité & Gestion', icon: 'account-balance' },
+  { key: 'hr', label: 'Ressources Humaines', icon: 'people' },
+  { key: 'logistics', label: 'Logistique & Transport', icon: 'local-shipping' },
+  { key: 'communication', label: 'Communication & Médias', icon: 'mic' },
+  { key: 'pharma', label: 'Pharmacie & Biotech', icon: 'biotech' },
+  { key: 'tourism', label: 'Tourisme & Hôtellerie', icon: 'hotel' },
+];
+
+const BEST_OFFERS = [
+  {
+    initials: 'TH',
+    title: 'Développeur Full Stack',
+    company: 'Telnet Holding',
+    companyInitials: 'TH',
+    verified: true,
+    location: 'Lac II, Tunis',
+    tags: [
+      { label: 'CDI' },
+      { label: 'Télétravail', variant: 'highlight' },
+    ],
+    postedAt: 'Il y a 2h',
+  },
+  {
+    initials: 'BI',
+    title: 'Data Scientist',
+    company: 'BIAT',
+    companyInitials: 'BI',
+    verified: true,
+    location: 'Les Berges du Lac',
+    tags: [
+      { label: 'CDI' },
+    ],
+    postedAt: 'Il y a 5h',
+  },
+  {
+    initials: 'VM',
+    title: 'DevOps Engineer',
+    company: 'Vermeg',
+    companyInitials: 'VM',
+    verified: true,
+    location: 'El Ghazala, Ariana',
+    tags: [
+      { label: 'CDD' },
+      { label: 'Télétravail', variant: 'highlight' },
+    ],
+    postedAt: 'Il y a 1j',
+  },
+  {
+    initials: 'OC',
+    title: 'UI/UX Designer',
+    company: 'Orange Tunisie',
+    companyInitials: 'OC',
+    verified: true,
+    location: 'Centre Urbain Nord, Tunis',
+    tags: [
+      { label: 'CDI' },
+      { label: 'Télétravail', variant: 'highlight' },
+    ],
+    postedAt: 'Il y a 3h',
+  },
+  {
+    initials: 'SS',
+    title: 'Ingénieur Cybersécurité',
+    company: 'SwissPost Solutions',
+    companyInitials: 'SS',
+    verified: true,
+    location: 'Technopark El Ghazala',
+    tags: [
+      { label: 'CDD' },
+    ],
+    postedAt: 'Il y a 6h',
+  },
+  {
+    initials: 'MG',
+    title: 'Chef de Produit Digital',
+    company: 'MAGHIM',
+    companyInitials: 'MG',
+    verified: true,
+    location: 'Sfax, Tunisie',
+    tags: [
+      { label: 'CDI' },
+    ],
+    postedAt: 'Il y a 8h',
+  },
 ];
 
 const MOCK_INTERVIEWS = [
@@ -67,6 +156,8 @@ const SAVED_JOB = {
 export default function Search({ activeTab, onTabChange }) {
   const [activeSpecialty, setActiveSpecialty] = useState('nursing');
   const [query, setQuery] = useState('');
+  const [showAllSpecialties, setShowAllSpecialties] = useState(false);
+  const [showAllOffers, setShowAllOffers] = useState(false);
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
 
@@ -139,32 +230,55 @@ export default function Search({ activeTab, onTabChange }) {
           />
           <TextInput
             style={styles.searchInput}
-            placeholder="Poste, entreprise ou mot-clé..."
+            placeholder="Recherche Spécialités"
             placeholderTextColor={colors.textFaint}
             value={query}
             onChangeText={setQuery}
             underlineColorAndroid="transparent"
           />
-          <TouchableOpacity style={styles.tuneButton}>
-            <MaterialIcons name="tune" size={18} color={colors.onSurfaceVariant} />
-          </TouchableOpacity>
         </View>
 
         {/* Spécialités */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Spécialités</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAllLink}>Voir tout</Text>
-          </TouchableOpacity>
+          {!showAllSpecialties && (
+            <TouchableOpacity onPress={() => setShowAllSpecialties(true)}>
+              <Text style={styles.seeAllLink}>Voir tout</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <View style={styles.specialtyList}>
-          {SPECIALTIES.map((s) => (
+          {(showAllSpecialties ? SPECIALTIES : SPECIALTIES.slice(0, 6)).map((s) => (
             <SpecialtyRow
               key={s.key}
               label={s.label}
               icon={s.icon}
               active={activeSpecialty === s.key}
               onPress={() => setActiveSpecialty(s.key)}
+            />
+          ))}
+        </View>
+
+        {/* Meilleures offres */}
+        <View style={styles.bestOffersSection}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>Meilleures offres</Text>
+            {!showAllOffers && (
+              <TouchableOpacity onPress={() => setShowAllOffers(true)}>
+                <Text style={styles.seeAllLink}>Voir tout</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          {(showAllOffers ? BEST_OFFERS : BEST_OFFERS.slice(0, 3)).map((job, index) => (
+            <JobCard
+              key={index}
+              initials={job.initials}
+              title={job.title}
+              company={job.company}
+              verified={job.verified}
+              location={job.location}
+              tags={job.tags}
+              postedAt={job.postedAt}
             />
           ))}
         </View>
@@ -358,7 +472,11 @@ const getStyles = (colors) => StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.primary,
-    textDecorationLine: 'underline',
+  },
+
+  // Best offers section
+  bestOffersSection: {
+    marginBottom: 32,
   },
 
   // Specialty rows

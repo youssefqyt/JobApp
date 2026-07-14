@@ -15,6 +15,7 @@ import HelpCenter from './Settings/HelpCenter';
 import AboutScreen from './Settings/About';
 import PasswordScreen from './Settings/Password';
 import CvBuilderWizard from './CvBuilder/CvBuilderWizard';
+import PersonalInfoScreen from './ProfileInfo'; // <-- new: the "Informations personnelles" screen
 import { useCandidateTheme } from '../../context/CandidateThemeContext'; // adjust relative path if needed
 
 // ---- Static profile data — replace with real data / props later ----
@@ -25,6 +26,8 @@ const PROFILE = {
   location: 'Tunis, Tunisie',
   completion: 78,
   bio: "Designer passionné par la création d'expériences numériques intuitives et performantes. Spécialisé dans le secteur de la FinTech et du e-commerce avec plus de 5 ans d'expérience...",
+  email: 'ahmed.bensalah@email.tn',
+  phone: '+216 22 333 444',
   experience: {
     title: 'Product Designer',
     company: 'TechTunisia',
@@ -67,17 +70,54 @@ export default function Profile({
   onViewCvPdf,
   onAddSkill,
   initialSettingsPage = null,
+  onSettingsPageConsumed,
   onLogout,
+  focusNotifications = false,
+  onNotificationsConsumed,
+  openPersonalInfo = false,
+  onPersonalInfoConsumed,
 }) {
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
   const [showSettings, setShowSettings] = useState(false);
-  const [settingsPage, setSettingsPage] = useState(initialSettingsPage);
+
+  // NOTE: local settingsPage no longer initializes from the prop directly.
+  // It only gets set via the effect below (once) or via user interaction
+  // (handleOpenSettingsPage / handleCloseSettingsPage). This is what
+  // prevents the "editProfile" screen from reappearing every time this
+  // component remounts after a tab switch.
+  const [settingsPage, setSettingsPage] = useState(null);
   const [showCvBuilder, setShowCvBuilder] = useState(false);
+  const [showPersonalInfo, setShowPersonalInfo] = useState(false); // <-- new
 
   useEffect(() => {
-    setSettingsPage(initialSettingsPage);
+    if (initialSettingsPage) {
+      setSettingsPage(initialSettingsPage);
+      // Tell the parent navigator this one-time navigation request has
+      // been consumed, so it clears it and won't replay it on the next
+      // mount of Profile (e.g. after switching tabs and coming back).
+      onSettingsPageConsumed?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSettingsPage]);
+
+  // When the parent requests focus on the Notifications section, open
+  // the settings sheet. The sheet itself will scroll to the right row.
+  useEffect(() => {
+    if (focusNotifications) {
+      setShowSettings(true);
+    }
+  }, [focusNotifications]);
+
+  // When the parent requests opening PersonalInfo (from the avatar tap
+  // in Home), open the PersonalInfoScreen.
+  useEffect(() => {
+    if (openPersonalInfo) {
+      setShowPersonalInfo(true);
+      if (onPersonalInfoConsumed) onPersonalInfoConsumed();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openPersonalInfo]);
 
   const handleOpenSettingsPage = (page) => {
     setSettingsPage(page);
@@ -97,11 +137,28 @@ export default function Profile({
     // TODO: navigate to preview or save
   };
 
+  // Personal info screen handlers
+  const handleOpenPersonalInfo = () => setShowPersonalInfo(true);
+  const closePersonalInfo = () => setShowPersonalInfo(false);
+
   if (showCvBuilder) {
     return (
       <CvBuilderWizard
         onExit={closeCvBuilder}
         onComplete={handleCvComplete}
+      />
+    );
+  }
+
+  if (showPersonalInfo) {
+    return (
+      <PersonalInfoScreen
+        profile={PROFILE}
+        onBack={closePersonalInfo}
+        onEdit={() => {
+          setShowPersonalInfo(false);
+          handleOpenSettingsPage('editProfile');
+        }}
       />
     );
   }
@@ -140,48 +197,50 @@ export default function Profile({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Main profile card */}
-        <Card colors={colors}>
-          <View style={styles.identityRow}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{PROFILE.initials}</Text>
-            </View>
-            <View style={styles.identityText}>
-              <Text style={styles.name}>{PROFILE.name}</Text>
-              <Text style={styles.roleText}>{PROFILE.role}</Text>
-              <View style={styles.locationRow}>
-                <MaterialIcons name="location-on" size={14} color={colors.outline} />
-                <Text style={styles.locationText}>{PROFILE.location}</Text>
+        {/* Main profile card — tappable anywhere to open "Informations personnelles" */}
+        <TouchableOpacity activeOpacity={0.9} onPress={handleOpenPersonalInfo}>
+          <Card colors={colors}>
+            <View style={styles.identityRow}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{PROFILE.initials}</Text>
               </View>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => handleOpenSettingsPage('editProfile')}
-              >
-                <MaterialIcons name="edit" size={16} color={colors.primary} />
-                <Text style={styles.editButtonText}>Modifier le profil</Text>
-              </TouchableOpacity>
+              <View style={styles.identityText}>
+                <Text style={styles.name}>{PROFILE.name}</Text>
+                <Text style={styles.roleText}>{PROFILE.role}</Text>
+                <View style={styles.locationRow}>
+                  <MaterialIcons name="location-on" size={14} color={colors.outline} />
+                  <Text style={styles.locationText}>{PROFILE.location}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => handleOpenSettingsPage('editProfile')}
+                >
+                  <MaterialIcons name="edit" size={16} color={colors.primary} />
+                  <Text style={styles.editButtonText}>Modifier le profil</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
 
-          {/* Completion */}
-          <View style={styles.completionSection}>
-            <View style={styles.completionHeaderRow}>
-              <Text style={styles.completionLabel}>Complétion du profil</Text>
-              <Text style={styles.completionValue}>{PROFILE.completion}%</Text>
+            {/* Completion */}
+            <View style={styles.completionSection}>
+              <View style={styles.completionHeaderRow}>
+                <Text style={styles.completionLabel}>Complétion du profil</Text>
+                <Text style={styles.completionValue}>{PROFILE.completion}%</Text>
+              </View>
+              <View style={styles.progressTrack}>
+                <View
+                  style={[styles.progressFill, { width: `${PROFILE.completion}%` }]}
+                />
+              </View>
+              <View style={styles.completionHintRow}>
+                <MaterialIcons name="add-circle" size={13} color={colors.primary} />
+                <Text style={styles.completionHint}>
+                  Ajoutez votre portfolio pour atteindre 90%
+                </Text>
+              </View>
             </View>
-            <View style={styles.progressTrack}>
-              <View
-                style={[styles.progressFill, { width: `${PROFILE.completion}%` }]}
-              />
-            </View>
-            <View style={styles.completionHintRow}>
-              <MaterialIcons name="add-circle" size={13} color={colors.primary} />
-              <Text style={styles.completionHint}>
-                Ajoutez votre portfolio pour atteindre 90%
-              </Text>
-            </View>
-          </View>
-        </Card>
+          </Card>
+        </TouchableOpacity>
 
         {/* Bio */}
         <Card colors={colors}>
@@ -264,7 +323,13 @@ export default function Profile({
       {/* Settings bottom sheet, opened from the header settings icon */}
       <SettingsSheet
         visible={showSettings}
-        onClose={() => setShowSettings(false)}
+        onClose={() => {
+          setShowSettings(false);
+          // Clear the notification focus signal so it doesn't re-open on next
+          // manual open.
+          if (onNotificationsConsumed) onNotificationsConsumed();
+        }}
+        focusNotifications={focusNotifications}
         onLanguagePress={() => handleOpenSettingsPage('language')}
         onHelpPress={() => handleOpenSettingsPage('help')}
         onContactPress={() => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -31,6 +31,17 @@ const EXPERIENCE_LEVELS = [
 const SECTORS = ['IT & Tech', 'Finance', 'Marketing', 'Santé', 'Education', 'Design'];
 const RATINGS = ['4', '3', '2', 'Tous'];
 
+// Shared "nothing selected" shape. Used both as the initial state and as
+// what we reset back to every time the sheet opens.
+const EMPTY_FILTERS = {
+  gouvernorat: null,
+  contract: null,
+  workModes: [],
+  experience: null,
+  sector: null,
+  rating: null,
+};
+
 function Chip({ label, active, onPress, style, colors }) {
   const styles = getStyles(colors);
   return (
@@ -51,12 +62,28 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
 
-  const [gouvernorat, setGouvernorat] = useState('Tunis');
-  const [contract, setContract] = useState('CDD');
-  const [workModes, setWorkModes] = useState(['remote', 'hybrid', 'verified']);
-  const [experience, setExperience] = useState('mid');
-  const [sector, setSector] = useState('IT & Tech');
-  const [rating, setRating] = useState('3');
+  const [gouvernorat, setGouvernorat] = useState(EMPTY_FILTERS.gouvernorat);
+  const [contract, setContract] = useState(EMPTY_FILTERS.contract);
+  const [workModes, setWorkModes] = useState(EMPTY_FILTERS.workModes);
+  const [experience, setExperience] = useState(EMPTY_FILTERS.experience);
+  const [sector, setSector] = useState(EMPTY_FILTERS.sector);
+  const [rating, setRating] = useState(EMPTY_FILTERS.rating);
+
+  // <Modal> keeps this component mounted while hidden (it just toggles
+  // visibility), so the useState initial values above only ever run once,
+  // on first mount. Without this effect, whatever was selected (or the
+  // stale defaults) would still be there the next time the sheet opens.
+  // Resetting here — keyed off `visible` — makes every open start clean.
+  useEffect(() => {
+    if (visible) {
+      setGouvernorat(EMPTY_FILTERS.gouvernorat);
+      setContract(EMPTY_FILTERS.contract);
+      setWorkModes(EMPTY_FILTERS.workModes);
+      setExperience(EMPTY_FILTERS.experience);
+      setSector(EMPTY_FILTERS.sector);
+      setRating(EMPTY_FILTERS.rating);
+    }
+  }, [visible]);
 
   const toggleWorkMode = (key) => {
     setWorkModes((prev) =>
@@ -65,12 +92,12 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
   };
 
   const handleReset = () => {
-    setGouvernorat(null);
-    setContract(null);
-    setWorkModes([]);
-    setExperience(null);
-    setSector(null);
-    setRating(null);
+    setGouvernorat(EMPTY_FILTERS.gouvernorat);
+    setContract(EMPTY_FILTERS.contract);
+    setWorkModes(EMPTY_FILTERS.workModes);
+    setExperience(EMPTY_FILTERS.experience);
+    setSector(EMPTY_FILTERS.sector);
+    setRating(EMPTY_FILTERS.rating);
   };
 
   const handleApply = () => {
@@ -253,7 +280,7 @@ export default function FilterModal({ visible, onClose, onApply, resultCount = 4
 const getStyles = (colors) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'transparent',
     justifyContent: 'flex-end',
   },
   sheet: {

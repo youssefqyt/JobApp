@@ -15,13 +15,16 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
 // If you're not using Expo:
-// `npm install react-native-vector-icons react-native-document-picker`
+// `npm install react-native-vector-icons react-native-document-picker react-native-image-picker`
 // and swap the imports above accordingly.
 import { useCandidateTheme } from '../../context/CandidateThemeContext'; // adjust relative path if needed
 
 const JOB_TYPES = ['Plein-temps', 'Freelance', 'Remote', 'CDD / Projet'];
 const MAX_CV_SIZE = 5 * 1024 * 1024; // 5MB
+const DEFAULT_AVATAR_URI =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuCN4hbV2e2Dsd2ecUSK2Q_IcUQ91D9NT-dc9zSkVzmekClgfjK6IQFX901rV5hCOt1bWmOpT3KnurXgn0L-g46au7tNrXBBZZePOp_28xojG8Ob1bMEg9J5i3ciG105tnFjHXavrdWgnvKA4YXw2LP9_FJ9en5H8Yj366TGk7OOHn7RJz-EJUBRHTv05eJcc13z8CLwlYjOD5Y49XAfbco5IWHSCv_xG2mv_ng8X04oP2AFg4wfaPVGfn9yMr_H26liTKVZJAZJZrRF';
 
 function formatBytes(bytes) {
   if (!bytes && bytes !== 0) return '';
@@ -47,10 +50,18 @@ export default function EditProfileScreen({ navigation }) {
   const [skills, setSkills] = useState(['Figma', 'UX Research', 'Prototypage']);
   const [newSkill, setNewSkill] = useState('');
 
+  // Avatar state
+  const [avatarUri, setAvatarUri] = useState(DEFAULT_AVATAR_URI);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
   // CV upload state
   const [cvFile, setCvFile] = useState(null);
   const [cvError, setCvError] = useState('');
   const [uploading, setUploading] = useState(false);
+
+  // CV OCR scan state (auto-fill profile from an uploaded CV)
+  const [scanningCV, setScanningCV] = useState(false);
+  const [scanError, setScanError] = useState('');
 
   const toggleJobType = (type) => {
     setSelectedJobTypes((prev) =>
@@ -68,6 +79,36 @@ export default function EditProfileScreen({ navigation }) {
       setSkills((prev) => [...prev, trimmed]);
     }
     setNewSkill('');
+  };
+
+  const handlePickAvatar = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Permission requise',
+          "Veuillez autoriser l'accès à vos photos pour changer votre photo de profil."
+        );
+        return;
+      }
+
+      setAvatarUploading(true);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets[0]) {
+        setAvatarUri(result.assets[0].uri);
+      }
+    } catch (err) {
+      console.warn('Avatar upload error:', err);
+      Alert.alert('Erreur', "Une erreur s'est produite lors du choix de l'image.");
+    } finally {
+      setAvatarUploading(false);
+    }
   };
 
   const handlePickCV = async () => {
@@ -116,6 +157,95 @@ export default function EditProfileScreen({ navigation }) {
     setCvError('');
   };
 
+  // --- CV OCR scan --------------------------------------------------------
+  // Lets the candidate pick a CV (PDF/DOCX/image) and auto-fills the form
+  // fields below by sending it to an OCR + parsing service.
+  //
+  // `extractProfileFromCV` is the integration point: swap the body for a
+  // real call to your backend (e.g. an endpoint that runs OCR — AWS
+  // Textract / Google Document AI / ML Kit — then an LLM parsing pass to
+  // structure the result). It must resolve to an object shaped like the
+  // return value below.
+  const extractProfileFromCV = async (file) => {
+    const formData = new FormData();
+    formData.append('file', {
+      uri: file.uri,
+      name: file.name,
+      type: file.mimeType || 'application/octet-stream',
+    });
+
+    // TODO: replace with your real OCR/parsing endpoint.
+    const response = await fetch('https://api.example.com/cv/scan', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Scan failed with status ${response.status}`);
+    }
+
+    // Expected shape from the backend:
+    // {
+    //   fullName, jobTitle, location, phone, bio,
+    //   skills: string[],
+    //   experiences: [{ title, company, period }],
+    //   education: [{ title, school, year }],
+    // }
+    return response.json();
+  };
+
+  const handleScanCV = async () => {
+    setScanError('');
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'image/*',
+        ],
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+
+      if (result.canceled) return;
+      const file = result.assets ? result.assets[0] : result;
+
+      if (file.size && file.size > MAX_CV_SIZE) {
+        setScanError('Le fichier dépasse la taille maximale de 5MB.');
+        return;
+      }
+
+      setScanningCV(true);
+      const extracted = await extractProfileFromCV(file);
+
+      if (extracted.fullName) setFullName(extracted.fullName);
+      if (extracted.jobTitle) setJobTitle(extracted.jobTitle);
+      if (extracted.location) setLocation(extracted.location);
+      if (extracted.phone) setPhone(extracted.phone);
+      if (extracted.bio) setBio(extracted.bio);
+      if (Array.isArray(extracted.skills) && extracted.skills.length) {
+        setSkills((prev) => Array.from(new Set([...prev, ...extracted.skills])));
+      }
+
+      // Also treat the scanned file as the uploaded CV.
+      setCvFile({
+        name: file.name,
+        size: file.size,
+        uri: file.uri,
+        mimeType: file.mimeType,
+      });
+
+      Alert.alert('CV analysé', 'Votre profil a été pré-rempli à partir du CV. Vérifiez les informations avant d’enregistrer.');
+    } catch (err) {
+      console.warn('CV scan error:', err);
+      setScanError("Impossible d'analyser ce CV. Réessayez ou remplissez le profil manuellement.");
+    } finally {
+      setScanningCV(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
@@ -142,18 +272,41 @@ export default function EditProfileScreen({ navigation }) {
         {/* Section 1: Photo & Identité */}
         <View style={styles.section}>
           <View style={styles.avatarWrapper}>
-            <View style={styles.avatarContainer}>
-              <Image
-                style={styles.avatar}
-                source={{
-                  uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCN4hbV2e2Dsd2ecUSK2Q_IcUQ91D9NT-dc9zSkVzmekClgfjK6IQFX901rV5hCOt1bWmOpT3KnurXgn0L-g46au7tNrXBBZZePOp_28xojG8Ob1bMEg9J5i3ciG105tnFjHXavrdWgnvKA4YXw2LP9_FJ9en5H8Yj366TGk7OOHn7RJz-EJUBRHTv05eJcc13z8CLwlYjOD5Y49XAfbco5IWHSCv_xG2mv_ng8X04oP2AFg4wfaPVGfn9yMr_H26liTKVZJAZJZrRF',
-                }}
-              />
-              <TouchableOpacity style={styles.editAvatarButton}>
+            <TouchableOpacity
+              style={styles.avatarContainer}
+              onPress={handlePickAvatar}
+              disabled={avatarUploading}
+              activeOpacity={0.8}
+              accessibilityLabel="Changer la photo de profil"
+            >
+              <Image style={styles.avatar} source={{ uri: avatarUri }} />
+              {avatarUploading && (
+                <View style={styles.avatarLoadingOverlay}>
+                  <MaterialIcons name="hourglass-top" size={22} color={colors.onPrimary} />
+                </View>
+              )}
+              <View style={styles.editAvatarButton}>
                 <MaterialIcons name="edit" size={16} color={colors.onPrimary} />
-              </TouchableOpacity>
-            </View>
+              </View>
+            </TouchableOpacity>
             <Text style={styles.avatarLabel}>Photo de profil</Text>
+
+            <TouchableOpacity
+              style={styles.scanCVButton}
+              onPress={handleScanCV}
+              disabled={scanningCV}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons
+                name={scanningCV ? 'hourglass-top' : 'document-scanner'}
+                size={18}
+                color={colors.primary}
+              />
+              <Text style={styles.scanCVButtonText}>
+                {scanningCV ? 'Analyse du CV en cours...' : 'Scanner un CV pour pré-remplir'}
+              </Text>
+            </TouchableOpacity>
+            {!!scanError && <Text style={styles.cvErrorText}>{scanError}</Text>}
           </View>
 
           <View style={styles.fieldGroup}>
@@ -515,6 +668,17 @@ const getStyles = (colors) => StyleSheet.create({
     height: '100%',
     borderRadius: 48,
   },
+  avatarLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 48,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   editAvatarButton: {
     position: 'absolute',
     bottom: 0,
@@ -533,6 +697,24 @@ const getStyles = (colors) => StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.onSurfaceVariant,
+  },
+  scanCVButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.primary,
+    backgroundColor: colors.secondaryContainer,
+  },
+  scanCVButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
   },
   fieldGroup: {
     marginBottom: 20,
@@ -579,10 +761,6 @@ const getStyles = (colors) => StyleSheet.create({
     fontSize: 16,
     color: colors.onSurface,
   },
-  // Was a hardcoded rgba(173, 237, 211, x) tint derived from the
-  // light-mode secondaryContainer hex — didn't adapt to dark mode.
-  // Now reuses the same secondaryContainer/outlineVariant pattern as
-  // the chip/chipSelected styles below, so it inverts correctly.
   availabilityCard: {
     flexDirection: 'row',
     alignItems: 'center',

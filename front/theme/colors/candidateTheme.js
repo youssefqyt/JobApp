@@ -20,8 +20,15 @@ export const CANDIDATE_LIGHT = {
   errorContainer: '#ffdad6',
   onError: '#ffffff',
   white: '#ffffff',
-  tertiary: '#a43a3a',
-  tertiaryContainer: '#fc7c78',
+  // Fixed: this is the "success / verified" accent (logo badge, verified
+  // checkmark, company name, mission bullets, training link, apply
+  // button). It was previously set to red tones (#a43a3a / #fc7c78),
+  // which bled red across the whole screen instead of just the
+  // "Compétences manquantes" card. Now a green, matching the design.
+  tertiary: '#059669',
+  tertiaryContainer: '#ecfdf5',
+  onTertiary: '#ffffff',
+  onTertiaryContainer: '#047857',
   yellow: '#eab308',
   secondaryContainer: '#adedd3',
   onSecondaryContainer: '#306d58',
@@ -73,8 +80,12 @@ export const CANDIDATE_DARK = {
   errorContainer: '#93000a',
   onError: '#690005',
   white: '#ffffff',
-  tertiary: '#ffb59d',
-  tertiaryContainer: '#7d2c20',
+  // Fixed: same "success / verified" green accent as light mode, was
+  // previously salmon/red (#ffb59d / #7d2c20).
+  tertiary: '#6ee7b7',
+  tertiaryContainer: '#065f46',
+  onTertiary: '#00382a',
+  onTertiaryContainer: '#a7f3d0',
   yellow: '#fbbf24',
   secondaryContainer: '#00513a',
   onSecondaryContainer: '#7ddab3',

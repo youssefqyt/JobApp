@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import JobCard from './component/CardJob';
 import BottomNavBar from './component/Navbar';
@@ -137,13 +137,118 @@ const JOBS = [
     ],
     skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD'],
   },
+  {
+    initials: 'OC',
+    title: 'UI/UX Designer',
+    company: 'Orange Tunisie',
+    companyInitials: 'OC',
+    verified: true,
+    location: 'Centre Urbain Nord, Tunis',
+    tags: [
+      { label: 'CDI' },
+      { label: 'Télétravail', variant: 'highlight' },
+    ],
+    postedAt: 'Il y a 3h',
+    contractType: 'CDI • Télétravail',
+    postedAgo: 'Publié il y a 3 heures',
+    applicantsCount: 38,
+    missingSkill: {
+      name: 'Design System',
+      note: 'Niveau requis non atteint',
+      gapLabel: 'Lacune - 10%',
+      gapPercent: 10,
+    },
+    description:
+      "En tant que UI/UX Designer chez Orange Tunisie, vous concevrez des interfaces intuitives et accessibles pour nos applications mobiles et web grand public.",
+    missions: [
+      'Création de maquettes et prototypes interactifs (Figma).',
+      'Conduite de tests utilisateurs et itérations sur les designs.',
+      'Contribution au design system interne.',
+    ],
+    skills: ['Figma', 'Adobe XD', 'User Research', 'Prototyping', 'Design System'],
+  },
+  {
+    initials: 'SS',
+    title: 'Ingénieur Cybersécurité',
+    company: 'SwissPost Solutions',
+    companyInitials: 'SS',
+    verified: true,
+    location: 'Technopark El Ghazala',
+    tags: [
+      { label: 'CDD' },
+    ],
+    postedAt: 'Il y a 6h',
+    contractType: 'CDD',
+    postedAgo: 'Publié il y a 6 heures',
+    applicantsCount: 29,
+    missingSkill: {
+      name: 'SOC / SIEM',
+      note: 'Niveau requis non atteint',
+      gapLabel: 'Lacune - 30%',
+      gapPercent: 30,
+    },
+    description:
+      "En tant qu'Ingénieur Cybersécurité chez SwissPost Solutions, vous protégerez l'infrastructure IT et les données sensibles contre les menaces internes et externes.",
+    missions: [
+      'Surveillance et analyse des incidents de sécurité (SOC).',
+      'Déploiement de solutions de sécurité (firewalls, SIEM).',
+      'Réalisation d\'audits de vulnérabilité et tests d\'intrusion.',
+    ],
+    skills: ['Python', 'Linux', 'SIEM', 'Network Security', 'ISO 27001'],
+  },
+  {
+    initials: 'MG',
+    title: 'Chef de Produit Digital',
+    company: 'MAGHIM',
+    companyInitials: 'MG',
+    verified: true,
+    location: 'Sfax, Tunisie',
+    tags: [
+      { label: 'CDI' },
+    ],
+    postedAt: 'Il y a 8h',
+    contractType: 'CDI',
+    postedAgo: 'Publié il y a 8 heures',
+    applicantsCount: 17,
+    missingSkill: {
+      name: 'Growth Hacking',
+      note: 'Niveau requis non atteint',
+      gapLabel: 'Lacune - 5%',
+      gapPercent: 5,
+    },
+    description:
+      "En tant que Chef de Produit Digital chez MAGHIM, vous piloterez la feuille de route de nos solutions SaaS destinées aux PME tunisiennes.",
+    missions: [
+      'Définition de la vision produit et priorisation du backlog.',
+      'Analyse des métriques produit et optimisation de la rétention.',
+      'Coordination avec les équipes tech, marketing et commercial.',
+    ],
+    skills: ['Product Strategy', 'Agile', 'Analytics', 'A/B Testing', 'JIRA'],
+  },
 ];
 
-export default function Home({ activeTab, onTabChange }) {
+export default function Home({ activeTab, onTabChange, onNotificationPress, onAvatarPress }) {
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+  const [savedToast, setSavedToast] = useState(false);
+  const toastOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (savedToast) {
+      Animated.sequence([
+        Animated.timing(toastOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.delay(2500),
+        Animated.timing(toastOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+      ]).start(() => setSavedToast(false));
+    }
+  }, [savedToast]);
+
+  const handleSave = () => {
+    setSavedToast(true);
+  };
 
   // Show the details screen full-screen in place of the list when a
   // card has been tapped.
@@ -158,6 +263,14 @@ export default function Home({ activeTab, onTabChange }) {
 
   return (
     <View style={styles.container}>
+      {/* Saved toast notification */}
+      <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
+        <Svg width={16} height={16} viewBox="0 0 24 24" fill={colors.primary}>
+          <Path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+        </Svg>
+        <Text style={styles.toastText}>Offre enregistrée dans "Recherche"</Text>
+      </Animated.View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -175,13 +288,21 @@ export default function Home({ activeTab, onTabChange }) {
 
             {/* Right icons */}
             <View style={styles.headerRight}>
-              <View style={styles.bellWrapper}>
+              <TouchableOpacity
+                style={styles.bellWrapper}
+                activeOpacity={0.7}
+                onPress={onNotificationPress}
+              >
                 <BellIcon color={colors.onSurfaceVariant} />
                 <View style={styles.bellDot} />
-              </View>
-              <View style={styles.avatar}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.avatar}
+                activeOpacity={0.7}
+                onPress={onAvatarPress}
+              >
                 <Text style={styles.avatarText}>AH</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -211,12 +332,14 @@ export default function Home({ activeTab, onTabChange }) {
         <View style={styles.jobSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Meilleurs matchs</Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={styles.voirTout}>Voir tout</Text>
-            </TouchableOpacity>
+            {!showAll && (
+              <TouchableOpacity activeOpacity={0.7} onPress={() => setShowAll(true)}>
+                <Text style={styles.voirTout}>Voir tout</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
-          {JOBS.map((job, index) => (
+          {(showAll ? JOBS : JOBS.slice(0, 3)).map((job, index) => (
             <JobCard
               key={index}
               initials={job.initials}
@@ -227,6 +350,7 @@ export default function Home({ activeTab, onTabChange }) {
               tags={job.tags}
               postedAt={job.postedAt}
               onPress={() => setSelectedJob(job)}
+              onPressBookmark={handleSave}
             />
           ))}
         </View>
@@ -253,6 +377,33 @@ const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 100,
+    left: 24,
+    right: 24,
+    zIndex: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.surfaceContainerLowest,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  toastText: {
+    flex: 1,
+    color: colors.onSurface,
+    fontSize: 14,
+    fontWeight: '600',
   },
   scrollView: {
     flex: 1,

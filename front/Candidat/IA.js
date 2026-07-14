@@ -292,122 +292,128 @@ export default function IA({ activeTab, onTabChange }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Assistant IA</Text>
-      </View>
-
-      {/* Chat */}
-      <ScrollView
-        ref={scrollRef}
-        style={styles.chat}
-        contentContainerStyle={styles.chatContent}
-        showsVerticalScrollIndicator={false}
-        onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+    <View style={styles.root}>
+      {/* Only the chat area + input dock react to the keyboard. The header
+          now lives inside the chat ScrollView (below) instead of a separate
+          fixed bar, so it scrolls away with the conversation exactly like
+          the Search page's title — no pinned header, no jump/transition
+          when scrolling. Since the header is still above the input dock in
+          the layout tree, the keyboard still only pushes the input dock up,
+          never the header. */}
+      <KeyboardAvoidingView
+        style={styles.keyboardArea}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        {messages.map((msg) => {
-          if (msg.type === 'checklist') {
-            return (
-              <BotChecklistBubble
-                key={msg.id}
-                intro={msg.intro}
-                items={msg.items}
-                ctaLabel={msg.ctaLabel}
-                time={msg.time}
-                onCtaPress={handleGenerateCv}
-                styles={styles}
-                colors={colors}
-              />
-            );
-          }
-          if (msg.type === 'file') {
-            return (
-              <FileBubble
-                key={msg.id}
-                name={msg.text}
-                time={msg.time}
-                styles={styles}
-                colors={colors}
-              />
-            );
-          }
-          return msg.from === 'bot' ? (
-            <BotTextBubble key={msg.id} text={msg.text} time={msg.time} styles={styles} />
-          ) : (
-            <UserBubble key={msg.id} text={msg.text} time={msg.time} styles={styles} />
-          );
-        })}
+        {/* Chat */}
+        <ScrollView
+          ref={scrollRef}
+          style={styles.chat}
+          contentContainerStyle={styles.chatContent}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+        >
+          <Text style={styles.pageTitle}>Assistant IA</Text>
 
-        {showQuickReply && (
-          <QuickReplyChip
-            label="Oui, génère une version améliorée"
-            onPress={handleQuickReply}
-            styles={styles}
-          />
-        )}
-      </ScrollView>
+          {messages.map((msg) => {
+            if (msg.type === 'checklist') {
+              return (
+                <BotChecklistBubble
+                  key={msg.id}
+                  intro={msg.intro}
+                  items={msg.items}
+                  ctaLabel={msg.ctaLabel}
+                  time={msg.time}
+                  onCtaPress={handleGenerateCv}
+                  styles={styles}
+                  colors={colors}
+                />
+              );
+            }
+            if (msg.type === 'file') {
+              return (
+                <FileBubble
+                  key={msg.id}
+                  name={msg.text}
+                  time={msg.time}
+                  styles={styles}
+                  colors={colors}
+                />
+              );
+            }
+            return msg.from === 'bot' ? (
+              <BotTextBubble key={msg.id} text={msg.text} time={msg.time} styles={styles} />
+            ) : (
+              <UserBubble key={msg.id} text={msg.text} time={msg.time} styles={styles} />
+            );
+          })}
 
-      {/* Attachment previews */}
-      {attachments.length > 0 && (
-        <View style={styles.attachmentsRow}>
-          {attachments.map((file) => (
-            <AttachmentChip
-              key={file.id}
-              file={file}
-              onRemove={handleRemoveAttachment}
-              colors={colors}
+          {showQuickReply && (
+            <QuickReplyChip
+              label="Oui, génère une version améliorée"
+              onPress={handleQuickReply}
               styles={styles}
             />
-          ))}
-        </View>
-      )}
+          )}
+        </ScrollView>
 
-      {/* Listening indicator */}
-      {isListening && (
-        <View style={styles.listeningRow}>
-          <View style={styles.listeningDot} />
-          <Text style={styles.listeningText}>À l'écoute... parlez maintenant</Text>
-        </View>
-      )}
+        {/* Attachment previews */}
+        {attachments.length > 0 && (
+          <View style={styles.attachmentsRow}>
+            {attachments.map((file) => (
+              <AttachmentChip
+                key={file.id}
+                file={file}
+                onRemove={handleRemoveAttachment}
+                colors={colors}
+                styles={styles}
+              />
+            ))}
+          </View>
+        )}
 
-      {/* Input dock */}
-      <View style={styles.inputDock}>
-        <TouchableOpacity style={styles.attachButton} onPress={handleAttachPress}>
-          <MaterialIcons name="attach-file" size={22} color={colors.onSurfaceVariant} />
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          placeholder={isListening ? 'Parlez maintenant...' : 'Posez votre question...'}
-          placeholderTextColor={colors.onSurfaceVariant}
-          value={input}
-          onChangeText={setInput}
-          onSubmitEditing={handleSend}
-          returnKeyType="send"
-          underlineColorAndroid="transparent"
-        />
-        <TouchableOpacity
-          style={[styles.micButton, isListening && styles.micButtonActive]}
-          onPress={handleMicPress}
-        >
-          <MaterialIcons
-            name={isListening ? 'mic' : 'mic-none'}
-            size={22}
-            color={isListening ? colors.white : colors.onSurfaceVariant}
+        {/* Listening indicator */}
+        {isListening && (
+          <View style={styles.listeningRow}>
+            <View style={styles.listeningDot} />
+            <Text style={styles.listeningText}>À l'écoute... parlez maintenant</Text>
+          </View>
+        )}
+
+        {/* Input dock */}
+        <View style={styles.inputDock}>
+          <TouchableOpacity style={styles.attachButton} onPress={handleAttachPress}>
+            <MaterialIcons name="attach-file" size={22} color={colors.onSurfaceVariant} />
+          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder={isListening ? 'Parlez maintenant...' : 'Posez votre question...'}
+            placeholderTextColor={colors.onSurfaceVariant}
+            value={input}
+            onChangeText={setInput}
+            onSubmitEditing={handleSend}
+            returnKeyType="send"
+            underlineColorAndroid="transparent"
           />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          <MaterialIcons name="send" size={20} color={colors.white} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[styles.micButton, isListening && styles.micButtonActive]}
+            onPress={handleMicPress}
+          >
+            <MaterialIcons
+              name={isListening ? 'mic' : 'mic-none'}
+              size={22}
+              color={isListening ? colors.white : colors.onSurfaceVariant}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+            <MaterialIcons name="send" size={20} color={colors.white} />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
 
-      {/* Bottom nav */}
+      {/* Bottom nav - fixed, outside the keyboard-avoiding area */}
       <BottomNavBar initialTab={activeTab || 'IA'} onTabChange={onTabChange} />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -416,24 +422,21 @@ const getStyles = (colors) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    height: 56,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: colors.background,
-  },
-  headerTitle: {
+  pageTitle: {
     fontSize: 24,
-    fontWeight: '600',
-    letterSpacing: -0.2,
+    fontWeight: '700',
     color: colors.primary,
+    marginBottom: 16,
+  },
+  keyboardArea: {
+    flex: 1,
   },
   chat: {
     flex: 1,
   },
   chatContent: {
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 24,
     paddingBottom: 16,
     gap: 20,
   },

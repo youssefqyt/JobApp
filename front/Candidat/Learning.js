@@ -133,17 +133,16 @@ export default function LearningHub({ activeTab, onTabChange }) {
 
   return (
     <View style={styles.container}>
-      {/* ======== TOP APP BAR ======== */}
-      <View style={styles.topBar}>
-        <Text style={styles.topBarTitle}>Learning Hub</Text>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ======== HEADER ======== */}
+        {/* ======== HEADER - lives inside the ScrollView so it scrolls away
+            with the content, exactly like the Search page's pageTitle.
+            No fixed/pinned bar above it, so there's no jump or transition
+            effect when scrolling. ======== */}
+        <Text style={styles.pageTitle}>Learning Hub</Text>
         <Text style={styles.subtitle}>Comblez vos lacunes, boostez votre carrière</Text>
 
         {/* ======== RECOMMENDED COURSES ======== */}
@@ -211,31 +210,23 @@ const getStyles = (colors) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  topBar: {
-    height: 64,
-    paddingTop: 12,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.outlineVariant,
-  },
-  topBarTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.primary,
-    letterSpacing: -0.3,
-  },
+
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 24,
     paddingBottom: 100, // room for nav bar
   },
 
-  // ---- Header ----
+  // ---- Header - same style as Search page's pageTitle ----
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 8,
+  },
   subtitle: {
     fontSize: 16,
     color: colors.onSurfaceVariant,

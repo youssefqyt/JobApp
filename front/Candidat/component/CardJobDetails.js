@@ -41,7 +41,7 @@ const DEFAULT_JOB = {
   skills: ['React.js', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Agile Scrum'],
 };
 
-export default function JobDetailsScreen({ job, onBack, navigation }) {
+export default function JobDetailsScreen({ job, onBack, navigation, onGenerateCv }) {
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
 
@@ -54,6 +54,15 @@ export default function JobDetailsScreen({ job, onBack, navigation }) {
       onBack();
     } else {
       navigation?.goBack?.();
+    }
+  };
+
+  const handleGenerateCv = () => {
+    if (onGenerateCv) {
+      onGenerateCv(data);
+    } else {
+      // TODO: wire this up to your CV-generation flow / navigation route
+      console.log('Generate CV for job:', data.title, '@', data.company);
     }
   };
 
@@ -97,6 +106,16 @@ export default function JobDetailsScreen({ job, onBack, navigation }) {
           {data.missingSkill && (
             <MissingSkillsCard skill={data.missingSkill} colors={colors} styles={styles} />
           )}
+
+          {/* Build a CV tailored to this specific job announcement */}
+          <TouchableOpacity
+            style={styles.generateCvButton}
+            activeOpacity={0.85}
+            onPress={handleGenerateCv}
+          >
+            <MaterialIcons name="auto-awesome" size={18} color={colors.onPrimary} />
+            <Text style={styles.generateCvButtonText}>Générer un CV pour cette offre</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Stats */}
@@ -367,6 +386,31 @@ const getStyles = (colors) => StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
+
+  // "Build a CV for this job" button, placed right under the
+  // Compétences manquantes card.
+  generateCvButton: {
+    marginTop: 16,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: colors.primary,
+    paddingVertical: 14,
+    borderRadius: 16,
+    shadowColor: colors.primary,
+    shadowOpacity: colors.isDark ? 0.15 : 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  generateCvButtonText: {
+    color: colors.onPrimary,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+
   statsGrid: {
     marginTop: 32,
     flexDirection: 'row',
