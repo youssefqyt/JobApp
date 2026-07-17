@@ -1,24 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
-const COLORS = {
-  primary: '#006c49',
-  onPrimary: '#ffffff',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  onSecondaryContainer: '#306d58',
-  secondaryContainer: '#adedd3',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-  outline: '#6c7a71',
-  white: '#ffffff',
-};
+import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
 
 const DEFAULT_SKILLS = ['React.js', 'Node.js', 'PostgreSQL', 'Tailwind CSS', 'TypeScript'];
 
 export default function StepSkillsGenerate({ value, onChange, generating, onGenerate }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const skills = value?.skills?.length ? value.skills : DEFAULT_SKILLS;
   const [newSkill, setNewSkill] = useState('');
 
@@ -48,12 +38,12 @@ export default function StepSkillsGenerate({ value, onChange, generating, onGene
           value={newSkill}
           onChangeText={setNewSkill}
           placeholder="Ajouter une compétence..."
-          placeholderTextColor={COLORS.outline}
+          placeholderTextColor={colors.outline}
           onSubmitEditing={addSkill}
           returnKeyType="done"
         />
         <TouchableOpacity style={styles.addSkillButton} activeOpacity={0.8} onPress={addSkill}>
-          <MaterialIcons name="add" size={18} color={COLORS.white} />
+          <MaterialIcons name="add" size={18} color={colors.white} />
         </TouchableOpacity>
       </View>
 
@@ -63,7 +53,7 @@ export default function StepSkillsGenerate({ value, onChange, generating, onGene
           <View key={skill} style={styles.skillChip}>
             <Text style={styles.skillChipText}>{skill}</Text>
             <TouchableOpacity onPress={() => removeSkill(skill)} hitSlop={8}>
-              <MaterialIcons name="close" size={14} color={COLORS.onSecondaryContainer} />
+              <MaterialIcons name="close" size={14} color={colors.onSecondaryContainer} />
             </TouchableOpacity>
           </View>
         ))}
@@ -72,7 +62,7 @@ export default function StepSkillsGenerate({ value, onChange, generating, onGene
       {/* AI generate card */}
       <View style={styles.generateCard}>
         <View style={styles.generateIconWrap}>
-          <MaterialIcons name="auto-awesome" size={22} color={COLORS.primary} />
+          <MaterialIcons name="auto-awesome" size={22} color={colors.primary} />
         </View>
         <Text style={styles.generateTitle}>Prêt à générer votre CV</Text>
         <Text style={styles.generateSubtitle}>
@@ -88,7 +78,7 @@ export default function StepSkillsGenerate({ value, onChange, generating, onGene
           <MaterialIcons
             name={generating ? 'hourglass-top' : 'auto-awesome'}
             size={18}
-            color={COLORS.white}
+            color={colors.white}
           />
           <Text style={styles.generateButtonText}>
             {generating ? 'Génération en cours...' : 'Générer mon CV'}
@@ -99,7 +89,7 @@ export default function StepSkillsGenerate({ value, onChange, generating, onGene
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
   },
@@ -111,12 +101,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 18,
   },
   addSkillRow: {
@@ -126,19 +116,19 @@ const styles = StyleSheet.create({
   },
   skillInput: {
     flex: 1,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 10,
     padding: 12,
     fontSize: 14,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   addSkillButton: {
     width: 44,
     height: 44,
     borderRadius: 10,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -155,19 +145,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 999,
-    backgroundColor: 'rgba(173,237,211,0.35)',
+    backgroundColor: colors.secondaryContainerFaint,
     borderWidth: 1,
-    borderColor: COLORS.secondaryContainer,
+    borderColor: colors.secondaryContainer,
   },
   skillChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   generateCard: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
@@ -176,7 +166,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -184,13 +174,13 @@ const styles = StyleSheet.create({
   generateTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     marginBottom: 6,
   },
   generateSubtitle: {
     fontSize: 13,
     lineHeight: 19,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
     marginBottom: 18,
   },
@@ -198,7 +188,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
@@ -208,6 +198,6 @@ const styles = StyleSheet.create({
   generateButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
   },
 });

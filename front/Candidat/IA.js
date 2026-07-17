@@ -293,13 +293,7 @@ export default function IA({ activeTab, onTabChange }) {
 
   return (
     <View style={styles.root}>
-      {/* Only the chat area + input dock react to the keyboard. The header
-          now lives inside the chat ScrollView (below) instead of a separate
-          fixed bar, so it scrolls away with the conversation exactly like
-          the Search page's title — no pinned header, no jump/transition
-          when scrolling. Since the header is still above the input dock in
-          the layout tree, the keyboard still only pushes the input dock up,
-          never the header. */}
+      {/* */}
       <KeyboardAvoidingView
         style={styles.keyboardArea}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

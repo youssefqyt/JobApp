@@ -283,7 +283,7 @@ const getStyles = (colors) => StyleSheet.create({
   overlayContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'transparent',
   },
   overlayTouchable: {
     flex: 1,

@@ -1,21 +1,10 @@
 import React from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
 
-const COLORS = {
-  primary: '#006c49',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  onSecondaryContainer: '#306d58',
-  secondaryContainer: '#adedd3',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  surfaceContainerHigh: '#e7e8e9',
-  outlineVariant: '#bbcabf',
-  white: '#ffffff',
-};
-
-function Field({ label, value, onChangeText, placeholder, multiline }) {
+function Field({ label, value, onChangeText, placeholder, multiline, colors }) {
+  const styles = getStyles(colors);
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -24,7 +13,7 @@ function Field({ label, value, onChangeText, placeholder, multiline }) {
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={COLORS.onSurfaceVariant}
+        placeholderTextColor={colors.outline}
         multiline={multiline}
         numberOfLines={multiline ? 5 : 1}
         textAlignVertical={multiline ? 'top' : 'center'}
@@ -34,6 +23,8 @@ function Field({ label, value, onChangeText, placeholder, multiline }) {
 }
 
 export default function StepPersonalInfo({ value, onChange, userFirstName = 'Ahmed' }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
   const data = value || {};
 
   const setField = (key) => (text) => onChange({ ...data, [key]: text });
@@ -43,7 +34,7 @@ export default function StepPersonalInfo({ value, onChange, userFirstName = 'Ahm
       {/* AI greeting bubble */}
       <View style={styles.aiRow}>
         <View style={styles.aiAvatar}>
-          <MaterialIcons name="psychology" size={18} color={COLORS.white} />
+          <MaterialIcons name="psychology" size={18} color={colors.white} />
         </View>
         <View style={styles.aiBubble}>
           <Text style={styles.aiBubbleText}>
@@ -58,18 +49,21 @@ export default function StepPersonalInfo({ value, onChange, userFirstName = 'Ahm
         value={data.fullName}
         onChangeText={setField('fullName')}
         placeholder="Ahmed Mansouri"
+        colors={colors}
       />
       <Field
         label="Titre Professionnel"
         value={data.title}
         onChangeText={setField('title')}
         placeholder="Product Designer"
+        colors={colors}
       />
       <Field
         label="Localisation"
         value={data.location}
         onChangeText={setField('location')}
         placeholder="Tunis, Tunisie"
+        colors={colors}
       />
       <Field
         label="Bio & Résumé"
@@ -77,11 +71,12 @@ export default function StepPersonalInfo({ value, onChange, userFirstName = 'Ahm
         onChangeText={setField('bio')}
         placeholder="Designer passionné par la création d'interfaces intuitives..."
         multiline
+        colors={colors}
       />
 
       {/* AI tip banner */}
       <View style={styles.aiTipBanner}>
-        <MaterialIcons name="auto-awesome" size={18} color={COLORS.primary} />
+        <MaterialIcons name="auto-awesome" size={18} color={colors.primary} />
         <Text style={styles.aiTipText}>
           Astuce IA : Votre bio est excellente, mais ajouter votre spécialisation en SaaS pourrait
           attirer +20% de recruteurs.
@@ -91,7 +86,7 @@ export default function StepPersonalInfo({ value, onChange, userFirstName = 'Ahm
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
   },
@@ -110,13 +105,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   aiBubble: {
     flex: 1,
-    backgroundColor: COLORS.surfaceContainerHigh,
+    backgroundColor: colors.surfaceContainerHigh,
     borderRadius: 14,
     borderTopLeftRadius: 4,
     padding: 12,
@@ -124,7 +119,7 @@ const styles = StyleSheet.create({
   aiBubbleText: {
     fontSize: 13,
     lineHeight: 19,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   field: {
     gap: 6,
@@ -132,16 +127,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   input: {
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 10,
     padding: 14,
     fontSize: 15,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   textarea: {
     minHeight: 110,
@@ -149,7 +144,7 @@ const styles = StyleSheet.create({
   aiTipBanner: {
     flexDirection: 'row',
     gap: 10,
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     borderRadius: 12,
     padding: 14,
   },
@@ -157,6 +152,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     lineHeight: 17,
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
 });

@@ -227,7 +227,9 @@ export default function AIAssistant() {
 
   return (
     <View style={styles.root}>
-      {/* Header */}
+      {/* Header — pinned outside the ScrollView so it stays fixed on screen
+          while the conversation scrolls underneath it. Typography matches
+          the Learning Hub page header (pageTitle + subtitle styles). */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>AI Recruitment Assistant</Text>
       </View>
@@ -345,16 +347,16 @@ const getStyles = (colors) => StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    height: 56,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.outlineVariant,
+    // Fixed/pinned header: lives above the ScrollView (not inside its
+    // contentContainer), so it never moves as the conversation scrolls.
+    paddingHorizontal: 24,
+    paddingTop: 24,
     backgroundColor: colors.background,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    // Matches Learning Hub's pageTitle style
+    fontSize: 24,
+    fontWeight: '700',
     color: colors.primary,
   },
   scroll: {

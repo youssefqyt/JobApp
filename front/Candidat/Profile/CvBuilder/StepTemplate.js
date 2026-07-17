@@ -1,20 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  onSecondaryContainer: '#306d58',
-  secondaryContainer: '#adedd3',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  outline: '#6c7a71',
-  outlineVariant: '#bbcabf',
-  white: '#ffffff',
-};
+import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
 
 const CATEGORIES = ['Tout', 'IT & Tech', 'Mécanique', 'Finance'];
 
@@ -26,6 +13,9 @@ const TEMPLATES = [
 ];
 
 export default function StepTemplate({ value, onChange }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const [category, setCategory] = useState('IT & Tech');
   const selectedTemplateId = value?.templateId;
 
@@ -62,7 +52,7 @@ export default function StepTemplate({ value, onChange }) {
 
       {/* AI tip banner */}
       <View style={styles.aiTipBanner}>
-        <MaterialIcons name="auto-awesome" size={18} color={COLORS.primary} />
+        <MaterialIcons name="auto-awesome" size={18} color={colors.primary} />
         <View style={styles.aiTipTextWrap}>
           <Text style={styles.aiTipTitle}>ASTUCE IA</Text>
           <Text style={styles.aiTipText}>
@@ -85,7 +75,7 @@ export default function StepTemplate({ value, onChange }) {
             >
               {template.recommended && (
                 <View style={styles.recommendedBadge}>
-                  <MaterialIcons name="auto-awesome" size={10} color={COLORS.onSecondaryContainer} />
+                  <MaterialIcons name="auto-awesome" size={10} color={colors.onSecondaryContainer} />
                   <Text style={styles.recommendedBadgeText}>RECOMMANDÉ</Text>
                 </View>
               )}
@@ -97,7 +87,7 @@ export default function StepTemplate({ value, onChange }) {
               <View style={styles.templateNameRow}>
                 <Text style={styles.templateName}>{template.name}</Text>
                 {isSelected && (
-                  <MaterialIcons name="check-circle" size={16} color={COLORS.primary} />
+                  <MaterialIcons name="check-circle" size={16} color={colors.primary} />
                 )}
               </View>
             </TouchableOpacity>
@@ -108,7 +98,7 @@ export default function StepTemplate({ value, onChange }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
   },
@@ -120,12 +110,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 16,
   },
   chipRow: {
@@ -139,25 +129,25 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   chipActive: {
-    backgroundColor: COLORS.primaryContainer,
-    borderColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
+    borderColor: colors.primaryContainer,
   },
   chipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   chipTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   aiTipBanner: {
     flexDirection: 'row',
     gap: 10,
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     borderRadius: 12,
     padding: 14,
     marginBottom: 16,
@@ -168,14 +158,14 @@ const styles = StyleSheet.create({
   aiTipTitle: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   aiTipText: {
     fontSize: 12,
     lineHeight: 17,
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   grid: {
     flexDirection: 'row',
@@ -185,14 +175,14 @@ const styles = StyleSheet.create({
   },
   templateCard: {
     width: '48%',
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 10,
   },
   templateCardSelected: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     borderWidth: 2,
   },
   recommendedBadge: {
@@ -200,7 +190,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 3,
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.secondaryContainer,
+    backgroundColor: colors.secondaryContainer,
     paddingHorizontal: 6,
     paddingVertical: 3,
     borderRadius: 4,
@@ -209,11 +199,11 @@ const styles = StyleSheet.create({
   recommendedBadgeText: {
     fontSize: 8,
     fontWeight: '700',
-    color: COLORS.onSecondaryContainer,
+    color: colors.onSecondaryContainer,
   },
   templatePreview: {
     height: 90,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
@@ -224,20 +214,20 @@ const styles = StyleSheet.create({
     width: '70%',
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.outlineVariant,
+    backgroundColor: colors.outlineVariant,
   },
   previewLineNarrow: {
     width: '45%',
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.outlineVariant,
+    backgroundColor: colors.outlineVariant,
   },
   previewBlock: {
     marginTop: 'auto',
     width: '100%',
     height: 24,
     borderRadius: 4,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
     opacity: 0.5,
   },
   templateNameRow: {
@@ -248,6 +238,6 @@ const styles = StyleSheet.create({
   templateName: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
 });

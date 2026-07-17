@@ -208,7 +208,7 @@ export default function SettingsSheet({
                 />
                 <SettingsRow
                   icon="info"
-                  title="À propos de Wazifa"
+                  title="À propos de TunWork"
                   subtitle={`Version ${appVersion}`}
                   onPress={onAboutPress}
                   right={<ChevronRight />}

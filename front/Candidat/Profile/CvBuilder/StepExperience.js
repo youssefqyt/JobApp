@@ -1,28 +1,19 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-
-const COLORS = {
-  primary: '#006c49',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-  error: '#ba1a1a',
-  white: '#ffffff',
-};
+import { useCandidateTheme } from '../../../context/CandidateThemeContext'; // adjust relative path if needed
 
 function makeEntry() {
   return { id: `entry-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` };
 }
 
-function EntryCard({ entry, fields, onChangeField, onRemove, removable }) {
+function EntryCard({ entry, fields, onChangeField, onRemove, removable, colors }) {
+  const styles = getStyles(colors);
   return (
     <View style={styles.entryCard}>
       {removable && (
         <TouchableOpacity style={styles.removeButton} activeOpacity={0.7} onPress={onRemove}>
-          <MaterialIcons name="close" size={16} color={COLORS.error} />
+          <MaterialIcons name="close" size={16} color={colors.error} />
         </TouchableOpacity>
       )}
       {fields.map((f) => (
@@ -33,7 +24,7 @@ function EntryCard({ entry, fields, onChangeField, onRemove, removable }) {
             value={entry[f.key] || ''}
             onChangeText={(text) => onChangeField(f.key, text)}
             placeholder={f.placeholder}
-            placeholderTextColor={COLORS.onSurfaceVariant}
+            placeholderTextColor={colors.outline}
           />
         </View>
       ))}
@@ -42,6 +33,9 @@ function EntryCard({ entry, fields, onChangeField, onRemove, removable }) {
 }
 
 export default function StepExperience({ value, onChange }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const data = value || {};
   const experiences = data.experiences?.length ? data.experiences : [makeEntry()];
   const education = data.education?.length ? data.education : [makeEntry()];
@@ -73,6 +67,7 @@ export default function StepExperience({ value, onChange }) {
           <EntryCard
             key={entry.id}
             entry={entry}
+            colors={colors}
             removable={experiences.length > 1}
             onRemove={() => removeEntry('experiences', experiences, entry.id)}
             onChangeField={(key, text) => updateEntry('experiences', experiences, entry.id, key, text)}
@@ -88,7 +83,7 @@ export default function StepExperience({ value, onChange }) {
           activeOpacity={0.7}
           onPress={() => addEntry('experiences', experiences)}
         >
-          <MaterialIcons name="add" size={16} color={COLORS.primary} />
+          <MaterialIcons name="add" size={16} color={colors.primary} />
           <Text style={styles.addButtonText}>Ajouter une expérience</Text>
         </TouchableOpacity>
       </View>
@@ -100,6 +95,7 @@ export default function StepExperience({ value, onChange }) {
           <EntryCard
             key={entry.id}
             entry={entry}
+            colors={colors}
             removable={education.length > 1}
             onRemove={() => removeEntry('education', education, entry.id)}
             onChangeField={(key, text) => updateEntry('education', education, entry.id, key, text)}
@@ -115,7 +111,7 @@ export default function StepExperience({ value, onChange }) {
           activeOpacity={0.7}
           onPress={() => addEntry('education', education)}
         >
-          <MaterialIcons name="add" size={16} color={COLORS.primary} />
+          <MaterialIcons name="add" size={16} color={colors.primary} />
           <Text style={styles.addButtonText}>Ajouter une formation</Text>
         </TouchableOpacity>
       </View>
@@ -123,7 +119,7 @@ export default function StepExperience({ value, onChange }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
   },
@@ -135,12 +131,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     marginBottom: 20,
   },
   section: {
@@ -149,14 +145,14 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     letterSpacing: 1,
     marginBottom: 12,
   },
   entryCard: {
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -169,7 +165,7 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
@@ -180,16 +176,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   input: {
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
-    color: COLORS.onSurface,
+    color: colors.onSurface,
   },
   addButton: {
     flexDirection: 'row',
@@ -201,6 +197,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 });

@@ -15,7 +15,13 @@ import HelpCenterEnt from './Settings/HelpCenterEnt';
 import AboutEnt from './Settings/AboutEnt';
 import { useCompanyTheme } from '../../context/EnterpriseThemeContext';
 
-export default function CompanyProfileScreen({ onLogout, initialSettingsPage = null }) {
+export default function CompanyProfileScreen({
+  onLogout,
+  initialSettingsPage = null,
+  focusNotifications = false,
+  onNotificationsFocused,
+  onEditProfile,
+}) {
   const { colors } = useCompanyTheme();
   const styles = getStyles(colors);
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -24,6 +30,16 @@ export default function CompanyProfileScreen({ onLogout, initialSettingsPage = n
   useEffect(() => {
     setSettingsPage(initialSettingsPage);
   }, [initialSettingsPage]);
+
+  // When we arrive here because the user tapped the notification bell
+  // on the dashboard, open the settings sheet automatically so the
+  // NOTIFICATIONS section can be scrolled to and highlighted.
+  useEffect(() => {
+    if (focusNotifications) {
+      setSettingsPage(null);
+      setSettingsVisible(true);
+    }
+  }, [focusNotifications]);
 
   const handleOpenSettingsPage = (page) => {
     setSettingsPage(page);
@@ -95,7 +111,7 @@ export default function CompanyProfileScreen({ onLogout, initialSettingsPage = n
           </View>
           <Text style={styles.tagline}>Pioneering Tech Recruitment Solutions in North Africa</Text>
 
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity style={styles.editButton} onPress={onEditProfile}>
             <MaterialIcons name="edit" size={18} color={colors.onPrimary} />
             <Text style={styles.editButtonText}>Edit Public Profile</Text>
           </TouchableOpacity>
@@ -107,7 +123,7 @@ export default function CompanyProfileScreen({ onLogout, initialSettingsPage = n
               <MaterialIcons name="info" size={20} color={colors.primary} />
               <Text style={styles.cardTitle}>Company Details</Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onEditProfile}>
               <Text style={styles.updateLink}>Update</Text>
             </TouchableOpacity>
           </View>
@@ -194,6 +210,8 @@ export default function CompanyProfileScreen({ onLogout, initialSettingsPage = n
         onPrivacyPolicyPress={() => handleOpenSettingsPage('about')}
         onAboutPress={() => handleOpenSettingsPage('about')}
         onSecurityPress={() => handleOpenSettingsPage('help')}
+        highlightSection={focusNotifications ? 'notifications' : null}
+        onHighlightHandled={onNotificationsFocused}
       />
     </SafeAreaView>
   );

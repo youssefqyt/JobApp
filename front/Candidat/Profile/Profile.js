@@ -16,6 +16,10 @@ import AboutScreen from './Settings/About';
 import PasswordScreen from './Settings/Password';
 import CvBuilderWizard from './CvBuilder/CvBuilderWizard';
 import PersonalInfoScreen from './ProfileInfo'; // <-- new: the "Informations personnelles" screen
+// Adjust these two paths to wherever ContactScreen.js and
+// PrivacyPolicyScreen.js actually live relative to this file.
+import ContactScreen from '../Profile/Settings/Contact';
+import PrivacyPolicyScreen from '../Profile/Settings/Privacypolicy';
 import { useCandidateTheme } from '../../context/CandidateThemeContext'; // adjust relative path if needed
 
 // ---- Static profile data — replace with real data / props later ----
@@ -175,6 +179,10 @@ export default function Profile({
         return <PasswordScreen navigation={{ goBack: handleCloseSettingsPage }} />;
       case 'editProfile':
         return <EditProfileScreen navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'contact':
+        return <ContactScreen navigation={{ goBack: handleCloseSettingsPage }} />;
+      case 'privacyPolicy':
+        return <PrivacyPolicyScreen navigation={{ goBack: handleCloseSettingsPage }} />;
       default:
         return null;
     }
@@ -332,14 +340,8 @@ export default function Profile({
         focusNotifications={focusNotifications}
         onLanguagePress={() => handleOpenSettingsPage('language')}
         onHelpPress={() => handleOpenSettingsPage('help')}
-        onContactPress={() => {
-          // TODO: implement contact destination or support chat
-          handleOpenSettingsPage('help');
-        }}
-        onPrivacyPolicyPress={() => {
-          // For now, reuse About screen or add a dedicated privacy route later
-          handleOpenSettingsPage('about');
-        }}
+        onContactPress={() => handleOpenSettingsPage('contact')}
+        onPrivacyPolicyPress={() => handleOpenSettingsPage('privacyPolicy')}
         onAboutPress={() => handleOpenSettingsPage('about')}
         onSecurityPress={() => handleOpenSettingsPage('security')}
         onLogout={() => {

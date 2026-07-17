@@ -10,6 +10,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import JobPostingCard from './componentEnt/Jobpostingcard';
 import CandidateMatchCard from './componentEnt/Candidatematchcard';
+import JobManagementScreen from './componentEnt/Jobmanagementscreen';
 import { useCompanyTheme } from '../context/EnterpriseThemeContext';
 
 // ---- Data ----
@@ -29,6 +30,8 @@ const JOB_OFFERS = [
     publishedLabel: 'Publié il y a 2 jours',
     views: 284,
     applications: 37,
+    location: 'Tunis',
+    type: 'CDI',
   },
   {
     title: 'UX Designer Senior',
@@ -36,6 +39,8 @@ const JOB_OFFERS = [
     publishedLabel: 'Publié il y a 5 jours',
     views: 198,
     applications: 22,
+    location: 'Sfax',
+    type: 'CDI',
   },
 ];
 
@@ -47,9 +52,6 @@ const RECOMMENDED_CANDIDATES = [
 ];
 
 // ---- Sub-components ----
-// Each takes `colors` + `styles` as props so they re-render correctly
-// when the theme (light/dark) changes, same pattern as OffresATSScreen
-// and AIAssistant.
 
 function StatCard({ label, value, suffix, trend, trendType, colors, styles }) {
   const trendIcon =
@@ -95,10 +97,63 @@ function SectionHeader({ title, onSeeAll, styles }) {
 
 // ---- Main screen ----
 
-export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOpenCandidate }) {
+export default function RecruiterDashboard({
+  onSearch,
+  onAddJob,
+  onOpenCandidate,
+  onNotificationsPress,
+}) {
   const { colors } = useCompanyTheme();
   const styles = getStyles(colors);
   const [query, setQuery] = useState('');
+
+  // Local navigation: which job (if any) is currently open in the
+  // "Gestion de l'offre" screen. Selecting a job posting card sets
+  // this; JobManagementScreen's back arrow clears it.
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [jobOffers, setJobOffers] = useState(JOB_OFFERS);
+
+  function handleOpenJob(job) {
+    setSelectedJob(job);
+  }
+
+  function handleBackFromJob() {
+    setSelectedJob(null);
+  }
+
+  function handleCloseJob(job) {
+    setJobOffers((prev) =>
+      prev.map((j) => (j.title === job.title ? { ...j, status: 'Fermé' } : j))
+    );
+  }
+
+  function handleReopenJob(job) {
+    setJobOffers((prev) =>
+      prev.map((j) => (j.title === job.title ? { ...j, status: 'Active' } : j))
+    );
+  }
+
+  function handleEditJob(job, updatedFields) {
+    setJobOffers((prev) =>
+      prev.map((j) => (j.title === job.title ? { ...j, ...updatedFields } : j))
+    );
+    // Keep selectedJob in sync so re-opening the modal shows fresh values.
+    setSelectedJob((prev) => (prev && prev.title === job.title ? { ...prev, ...updatedFields } : prev));
+  }
+
+  // Show the job management screen instead of the dashboard when a
+  // job posting card has been tapped.
+  if (selectedJob) {
+    return (
+      <JobManagementScreen
+        job={selectedJob}
+        onBack={handleBackFromJob}
+        onCloseJob={handleCloseJob}
+        onReopenJob={handleReopenJob}
+        onEditJob={handleEditJob}
+      />
+    );
+  }
 
   return (
     <View style={styles.root}>
@@ -109,7 +164,11 @@ export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOp
           <Text style={styles.logoWork}>Work</Text>
         </Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.bellButton} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.bellButton}
+            activeOpacity={0.7}
+            onPress={onNotificationsPress}
+          >
             <MaterialIcons name="notifications" size={22} color={colors.onSurfaceVariant} />
           </TouchableOpacity>
           <View style={styles.avatar}>
@@ -147,11 +206,11 @@ export default function RecruiterDashboard({ onSearch, onAddJob, onOpenJob, onOp
         <View style={styles.section}>
           <SectionHeader title="DERNIÈRES OFFRES PUBLIÉES" styles={styles} />
           <View style={styles.jobList}>
-            {JOB_OFFERS.map((job) => (
+            {jobOffers.map((job) => (
               <JobPostingCard
                 key={job.title}
                 {...job}
-                onPress={() => onOpenJob && onOpenJob(job)}
+                onPress={() => handleOpenJob(job)}
               />
             ))}
           </View>
@@ -265,8 +324,6 @@ const getStyles = (colors) => StyleSheet.create({
     backgroundColor: colors.surfaceContainerLow,
     borderWidth: 0,
     borderColor: 'transparent',
-    // Removes the default browser focus rectangle on RN Web; no-op
-    // on native iOS/Android so it's safe to keep everywhere.
     outlineStyle: 'none',
     outlineWidth: 0,
     outlineColor: 'transparent',

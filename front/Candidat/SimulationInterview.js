@@ -21,13 +21,20 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 const TOTAL_QUESTIONS = 5;
 const CURRENT_QUESTION = 3;
 
-export default function SimulationScreen() {
+// role: { icon, title, modules, minutes } — passed from Search when a
+// mock-interview row is tapped. Falls back to a default if opened
+// without a selection (e.g. deep link).
+// onBack: called when the back button is pressed; the navigator decides
+// which tab to return to.
+export default function SimulationScreen({ role, onBack }) {
   const { colors } = useCandidateTheme();
   const styles = getStyles(colors);
 
   const [answer, setAnswer] = useState('');
   const [focused, setFocused] = useState(false);
   const [hintOpen, setHintOpen] = useState(false);
+
+  const roleTitle = role?.title || 'Design Industriel & Prototypage';
 
   const toggleHint = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -38,7 +45,7 @@ export default function SimulationScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={onBack}>
           <Ionicons name="arrow-back" size={22} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Préparation & Simulation</Text>
@@ -72,7 +79,7 @@ export default function SimulationScreen() {
             </View>
           </View>
           <Text style={styles.roleLabel}>RÔLE VISÉ</Text>
-          <Text style={styles.roleTitle}>Design Industriel & Prototypage</Text>
+          <Text style={styles.roleTitle}>{roleTitle}</Text>
         </View>
 
         {/* Question bubble */}

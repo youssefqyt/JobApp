@@ -6,18 +6,9 @@ import StepTemplate from './StepTemplate';
 import StepPersonalInfo from './StepPersonalInfo';
 import StepExperience from './StepExperience';
 import StepSkillsGenerate from './StepSkillsGenerate';
-
-const COLORS = {
-  primary: '#006c49',
-  primaryContainer: '#10b981',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3c4a42',
-  surface: '#f8f9fa',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerLowest: '#ffffff',
-  outlineVariant: '#bbcabf',
-  white: '#ffffff',
-};
+// Adjust this path if CvBuilderWizard.js lives in a different folder
+// relative to the context folder than Home.js does.
+import { useCandidateTheme } from '../../../context/CandidateThemeContext';
 
 const STEPS = [
   { key: 'template', label: 'Choisir un modèle', Component: StepTemplate },
@@ -27,6 +18,9 @@ const STEPS = [
 ];
 
 export default function CvBuilderWizard({ onExit, onComplete }) {
+  const { colors } = useCandidateTheme();
+  const styles = getStyles(colors);
+
   const [stepIndex, setStepIndex] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -98,7 +92,7 @@ export default function CvBuilderWizard({ onExit, onComplete }) {
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
           <TouchableOpacity style={styles.backRow} activeOpacity={0.7} onPress={handleHeaderBack}>
-            <MaterialIcons name="arrow-back" size={20} color={COLORS.primary} />
+            <MaterialIcons name="arrow-back" size={20} color={colors.primary} />
             <Text style={styles.headerTitle}>CV Builder IA</Text>
           </TouchableOpacity>
           <Text style={styles.progressPercentText}>{progressPercent}%</Text>
@@ -119,14 +113,14 @@ export default function CvBuilderWizard({ onExit, onComplete }) {
       {/* Footer navigation */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.retourButton} activeOpacity={0.7} onPress={handleFooterBack}>
-          <MaterialIcons name="chevron-left" size={18} color={COLORS.onSurfaceVariant} />
+          <MaterialIcons name="chevron-left" size={18} color={colors.onSurfaceVariant} />
           <Text style={styles.retourButtonText}>Retour</Text>
         </TouchableOpacity>
 
         {!isLastStep && (
           <TouchableOpacity style={styles.continuerButton} activeOpacity={0.85} onPress={goNext}>
             <Text style={styles.continuerButtonText}>Continuer</Text>
-            <MaterialIcons name="chevron-right" size={18} color={COLORS.white} />
+            <MaterialIcons name="chevron-right" size={18} color={colors.white} />
           </TouchableOpacity>
         )}
       </View>
@@ -140,7 +134,7 @@ export default function CvBuilderWizard({ onExit, onComplete }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <MaterialIcons name="warning-amber" size={36} color={COLORS.primary} style={styles.modalIcon} />
+            <MaterialIcons name="warning-amber" size={36} color={colors.primary} style={styles.modalIcon} />
             <Text style={styles.modalTitle}>Quitter la génération ?</Text>
             <Text style={styles.modalText}>
               Les informations déjà saisies seront perdues si vous quittez maintenant.
@@ -168,18 +162,18 @@ export default function CvBuilderWizard({ onExit, onComplete }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surface,
+    borderBottomColor: colors.outlineVariant,
+    backgroundColor: colors.background,
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -195,29 +189,29 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressPercentText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressTrack: {
     height: 6,
     borderRadius: 999,
-    backgroundColor: COLORS.surfaceContainerLow,
+    backgroundColor: colors.surfaceContainerLow,
     overflow: 'hidden',
     marginBottom: 6,
   },
   progressFill: {
     height: '100%',
     borderRadius: 999,
-    backgroundColor: COLORS.primaryContainer,
+    backgroundColor: colors.primaryContainer,
   },
   stepMeta: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     letterSpacing: 0.5,
   },
   footer: {
@@ -227,8 +221,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: COLORS.outlineVariant,
-    backgroundColor: COLORS.surfaceContainerLowest,
+    borderTopColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   retourButton: {
     flexDirection: 'row',
@@ -239,13 +233,13 @@ const styles = StyleSheet.create({
   retourButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   continuerButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 999,
     paddingVertical: 12,
     paddingHorizontal: 22,
@@ -253,7 +247,7 @@ const styles = StyleSheet.create({
   continuerButtonText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
   },
 
   // Modal
@@ -266,7 +260,7 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     width: '100%',
-    backgroundColor: COLORS.surfaceContainerLowest,
+    backgroundColor: colors.surfaceContainerLowest,
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -277,13 +271,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.onSurface,
+    color: colors.onSurface,
     marginBottom: 8,
   },
   modalText: {
     fontSize: 14,
     lineHeight: 20,
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -297,26 +291,26 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: COLORS.outlineVariant,
+    borderColor: colors.outlineVariant,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalDiscardText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.onSurfaceVariant,
+    color: colors.onSurfaceVariant,
   },
   modalContinueButton: {
     flex: 1,
     paddingVertical: 13,
     borderRadius: 10,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalContinueText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
   },
 });

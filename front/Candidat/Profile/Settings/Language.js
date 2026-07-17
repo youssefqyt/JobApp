@@ -17,19 +17,19 @@ const LANGUAGES = [
     value: 'fr',
     name: 'Français',
     subtitle: 'Français',
-    flag: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD_7GET_eUMT_rlr4vQDcA4OqoA_l8eZ_rF0-yC3My6Hr3fKpGRqF896xzGEGP3PkK8E9b7uC25t--foinJ16nYtqUcm9SDBsAkTTHveJkAJiNSeA7Rj3hpVK-G45IW15xeTCgitGjfiRXnFX7yge4OABq3SGN3-PNkOqTSydk3iRjIXCGmvzBEZboE2z5SzzMQ5Ct5az-JJBDVkzc0-EZXdVFvV2JPnIDR04Kzx5qpqiDr-ia_EQGRYqCGdWRO8PsawCG-IwBYf9eD',
+    flag: require('../../../../assets/flags/fr.png'),
   },
   {
     value: 'ar',
     name: 'العربية',
     subtitle: 'Arabe',
-    flag: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDTAN7Ai1FFzRYwPn7iJX-DtTM0sS_emGsbY4NalobaYEPCPuRjv13a1W91rr_Nw2nWjcMelvEfAZPAdAuq7au7CoukiQsu7dD7ZxuHxbbzKOU7pgwcD8gxlPkQBrFT7Bhxfu53QfzRFT41aR7zphLp6S7qD7Z0ptSLWxYFvBJiSNyQhxLqZ2dQXw88tmEqvadGCGQru2eUprvCzsigt03qDPDelNdyE5Cra1ctAYhimhW6kNCL5yyZ2ubxFcGlTXPaAoygMohvtvtB',
+    flag: require('../../../../assets/flags/ar.png'),
   },
   {
     value: 'en',
     name: 'English',
     subtitle: 'Anglais',
-    flag: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCUIjg2TOsWyzKvQijFS4gq5aIDFXH2MoNiDUf1G0WfVmgXwICrGNYWqABO7-xhu6tglcaf-0IfnHzv5g41Iwv0uC3hvesCsWsYXiFAx1bum0iuZUI-3zY5GQAfgEO8fwUuqN2Rk6F0mlAfvoEJzfwDFL98ELC31fmIkxlRf217nXtzzS1OIlTw_OlGNiLgtLtWRKBmf_z5cL_3eTxnSOwfDgxyguHRosuWpvXOsq5ZWfuJCKxUP9j2U9tEX0j_UvORUgABh4HEzrpu',
+    flag: require('../../../../assets/flags/en.png'),
   },
 ];
 
@@ -88,7 +88,7 @@ export default function LanguageScreen({ navigation }) {
               >
                 <View style={styles.optionLeft}>
                   <View style={styles.flagWrapper}>
-                    <Image source={{ uri: lang.flag }} style={styles.flagImage} />
+                    <Image source={lang.flag} style={styles.flagImage} />
                   </View>
                   <View>
                     <Text style={styles.optionName}>{lang.name}</Text>

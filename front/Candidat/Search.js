@@ -153,7 +153,7 @@ const SAVED_JOB = {
   postedAt: 'Il y a 2 jours',
 };
 
-export default function Search({ activeTab, onTabChange }) {
+export default function Search({ activeTab, onTabChange, onOpenSimulation }) {
   const [activeSpecialty, setActiveSpecialty] = useState('nursing');
   const [query, setQuery] = useState('');
   const [showAllSpecialties, setShowAllSpecialties] = useState(false);
@@ -191,7 +191,13 @@ export default function Search({ activeTab, onTabChange }) {
 
   function MockInterviewItem({ icon, title, modules, minutes }) {
     return (
-      <TouchableOpacity style={styles.mockItem} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.mockItem}
+        activeOpacity={0.8}
+        onPress={() =>
+          onOpenSimulation && onOpenSimulation({ icon, title, modules, minutes })
+        }
+      >
         <View style={styles.mockLeft}>
           <View style={styles.mockIconWrap}>
             <MaterialIcons name={icon} size={22} color={colors.primary} />

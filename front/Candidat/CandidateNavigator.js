@@ -4,6 +4,7 @@ import Search from './Search';
 import IA from './IA';
 import Learning from './Learning';
 import Profile from './Profile/Profile';
+import SimulationScreen from '././SimulationInterview'; // adjust path if needed
 import { CandidateThemeProvider } from '../context/CandidateThemeContext';
 
 export default function CandidateNavigator({
@@ -32,6 +33,11 @@ export default function CandidateNavigator({
   // the PersonalInfoScreen directly.
   const [openPersonalInfo, setOpenPersonalInfo] = useState(false);
 
+  // Which mock-interview item was tapped in Search, and which tab to
+  // return to when the user hits back on the simulation screen.
+  const [selectedSimulation, setSelectedSimulation] = useState(null);
+  const [simulationReturnTab, setSimulationReturnTab] = useState('Recherche');
+
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
@@ -59,10 +65,31 @@ export default function CandidateNavigator({
     setActiveTab('Profil');
   };
 
+  // Called from Search when a mock-interview row is tapped — switch to
+  // the Simulation screen and remember which tab to return to.
+  const handleOpenSimulation = (item) => {
+    setSelectedSimulation(item);
+    setSimulationReturnTab(activeTab);
+    setActiveTab('Simulation');
+  };
+
   const renderScreen = () => {
     switch (activeTab) {
       case 'Recherche':
-        return <Search activeTab={activeTab} onTabChange={setActiveTab} />;
+        return (
+          <Search
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onOpenSimulation={handleOpenSimulation}
+          />
+        );
+      case 'Simulation':
+        return (
+          <SimulationScreen
+            role={selectedSimulation}
+            onBack={() => setActiveTab(simulationReturnTab)}
+          />
+        );
       case 'IA':
         return <IA activeTab={activeTab} onTabChange={setActiveTab} />;
       case 'Formation':

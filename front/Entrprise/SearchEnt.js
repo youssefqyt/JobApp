@@ -32,9 +32,7 @@ const PlusIcon = ({ color, size = 18 }) => (
 // ---- Filter chip definitions ----
 const FILTERS = ['Tous', 'React.js', 'Tunis', 'Disponible'];
 
-// ---- Candidate data (matching the HTML mockup) ----
-// avatarColor kept as fixed brand accents (not theme-driven) so each
-// candidate keeps a distinct identity color across light/dark mode.
+// ---- Candidate data ----
 const CANDIDATES = [
   {
     initials: 'AM',
@@ -75,15 +73,18 @@ export default function Recherche() {
   const [query, setQuery] = useState('');
 
   return (
-    <View style={styles.container}>
-      {/* ---- Header ---- */}
+    <View style={styles.root}>
+      {/* Header — pinned outside the ScrollView so it stays fixed on screen
+          while the results scroll underneath it, same pattern/position as
+          AIAssistant's header (paddingHorizontal 24, paddingTop 24, no
+          scroll-based animation). */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Rechercher des talents</Text>
         <Text style={styles.headerSubtitle}>{CANDIDATES.length * 413} profils disponibles</Text>
       </View>
 
       <ScrollView
-        style={styles.scrollView}
+        style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -149,21 +150,21 @@ export default function Recherche() {
           />
         ))}
       </ScrollView>
-
-      {/* ---- Bottom nav (existing Entreprise navbar, Offres tab) ---- */}
     </View>
   );
 }
 
 const getStyles = (colors) => StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
     backgroundColor: colors.background,
   },
+
+  // ---- Header (fixed, matches AIAssistant's header) ----
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 56,
-    paddingBottom: 16,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 12,
     backgroundColor: colors.background,
   },
   headerTitle: {
@@ -171,18 +172,19 @@ const getStyles = (colors) => StyleSheet.create({
     fontWeight: '700',
     letterSpacing: -0.4,
     color: colors.primary,
+    marginBottom: 8,
   },
   headerSubtitle: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 16,
     color: colors.onSurfaceVariant,
-    marginTop: 2,
   },
-  scrollView: {
+
+  scroll: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 16,
+    paddingTop: 16,
     paddingBottom: 24,
   },
 
