@@ -11,8 +11,10 @@ import {
   Platform,
   ActivityIndicator,
   StatusBar,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 // ---- Design tokens (mapped from the web mockup) ----
 const colors = {
@@ -35,6 +37,33 @@ const COVER_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuC5jCNyaXU3OLoyF2WZ372_BfFRL3MS1zv8U1BJiMDZZR06TPVn0D1TEmGJeAvhJk-boOTUE_sDpSQPN8qGdlCmZ2kgv_iOsyq8psFJrVBDMmbjKMrVM3p0qCmZ2kLUPMBIe0N-cR8DTDb1iJo7UgH-WHm0z1809DPe6DsP5QPFsFt8usLIwxfxHmy_U4TXLKod3QRdLme7MxlGLyqnQ6Q6-UQPdsuzEkIH016deu0HNbguNXyMwAuL3iNvJh7XF0wslKJrT9m0iove';
 const LOGO_IMAGE =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBpLUIBVljib26GZAk4HLrYONB8TcaIdy6PxvyCM83dGjbqsQxPxPWjToIp91EmHuSnZrwW9O4fMRUjBSvzZ82ChXq5reVMQEyyTNbo1kqtF2Q2Uw09gzA1y_erxslhjhqzI9OvR4dwNzzSFbCW23UPzUVZ9vX-FVvmBAtom6RbBmrt6Cm1N9DPb5Cw_66JaHG5nkXTEGVh-CnBKxWtbcWqIfPtrzYm3Mnq5y68JS_qb4E32jC5zCGK3PlGKxNkQzRHQPApzabTB7Z4';
+
+// ---- Image picker helper ----
+// Requests gallery permission, launches the picker, and returns the picked
+// image's local URI (or null if the user cancelled / permission was denied).
+async function pickImageFromLibrary({ aspect } = {}) {
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (status !== 'granted') {
+    Alert.alert(
+      'Permission requise',
+      "Merci d'autoriser l'accès à vos photos pour changer cette image."
+    );
+    return null;
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: aspect || [1, 1],
+    quality: 0.8,
+  });
+
+  if (result.canceled || !result.assets || !result.assets.length) {
+    return null;
+  }
+
+  return result.assets[0].uri;
+}
 
 // ---- Reusable field ----
 function LabeledInput({ label, value, onChangeText, icon, ...props }) {
@@ -88,7 +117,35 @@ export default function EditCompanyProfileScreen({ onBack, onSave }) {
   const [website, setWebsite] = useState('https://www.tunwork.tn');
   const [linkedin, setLinkedin] = useState('');
 
+  // Cover & logo images, now editable via the device's image library
+  const [coverImage, setCoverImage] = useState(COVER_IMAGE);
+  const [logoImage, setLogoImage] = useState(LOGO_IMAGE);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
+
   const [saveState, setSaveState] = useState('idle'); // idle | saving | saved
+
+  const handlePickCover = async () => {
+    if (coverUploading) return;
+    setCoverUploading(true);
+    try {
+      const uri = await pickImageFromLibrary({ aspect: [16, 9] });
+      if (uri) setCoverImage(uri);
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
+  const handlePickLogo = async () => {
+    if (logoUploading) return;
+    setLogoUploading(true);
+    try {
+      const uri = await pickImageFromLibrary({ aspect: [1, 1] });
+      if (uri) setLogoImage(uri);
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   const handleSave = () => {
     if (saveState !== 'idle') return;
@@ -105,6 +162,8 @@ export default function EditCompanyProfileScreen({ onBack, onSave }) {
           foundedYear,
           website,
           linkedin,
+          coverImage,
+          logoImage,
         });
       }
       setTimeout(() => setSaveState('idle'), 2000);
@@ -170,24 +229,40 @@ export default function EditCompanyProfileScreen({ onBack, onSave }) {
       >
         {/* Media section */}
         <View style={styles.mediaCard}>
-          <ImageBackground
-            source={{ uri: COVER_IMAGE }}
-            style={styles.coverImage}
-            imageStyle={styles.coverImageInner}
-          >
-            <TouchableOpacity style={styles.coverEditButton}>
-              <MaterialIcons name="photo-camera" size={18} color={colors.onSurface} />
-              <Text style={styles.coverEditText}>Modifier la couverture</Text>
-            </TouchableOpacity>
-          </ImageBackground>
+          <TouchableOpacity activeOpacity={0.85} onPress={handlePickCover}>
+            <ImageBackground
+              source={{ uri: coverImage }}
+              style={styles.coverImage}
+              imageStyle={styles.coverImageInner}
+            >
+              <View style={styles.coverEditButton}>
+                {coverUploading ? (
+                  <ActivityIndicator size="small" color={colors.onSurface} />
+                ) : (
+                  <MaterialIcons name="photo-camera" size={18} color={colors.onSurface} />
+                )}
+                <Text style={styles.coverEditText}>
+                  {coverUploading ? 'Chargement...' : 'Modifier la couverture'}
+                </Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
 
           <View style={styles.mediaFooter}>
-            <View style={styles.logoWrapper}>
-              <Image source={{ uri: LOGO_IMAGE }} style={styles.logo} resizeMode="contain" />
-              <TouchableOpacity style={styles.logoEditButton}>
-                <MaterialIcons name="edit" size={16} color={colors.onPrimary} />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.logoWrapper}
+              onPress={handlePickLogo}
+            >
+              <Image source={{ uri: logoImage }} style={styles.logo} resizeMode="contain" />
+              <View style={styles.logoEditButton}>
+                {logoUploading ? (
+                  <ActivityIndicator size="small" color={colors.onPrimary} />
+                ) : (
+                  <MaterialIcons name="edit" size={16} color={colors.onPrimary} />
+                )}
+              </View>
+            </TouchableOpacity>
             <View style={styles.mediaFooterText}>
               <Text style={styles.companyTitle}>{companyName}</Text>
               <Text style={styles.companySubtitle}>Mise à jour du logo et de la couverture</Text>
